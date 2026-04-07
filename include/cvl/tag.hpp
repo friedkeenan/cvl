@@ -34,6 +34,7 @@ namespace cvl::impl {
 
         consteval tagged() = default;
 
+        /* NOTE: Destrucutors can't be made 'consteval'. */
         constexpr ~tagged() = default;
 
         /* A helper function to wrap our tag appropriately and send it off to the template. */

@@ -8,6 +8,7 @@ namespace cvl {
 
     namespace impl {
 
+        /* Tracks whether initialization has happened. */
         template<std::meta::info Tag>
         constexpr inline cvl::once_flag delayed_init_flag;
 
@@ -15,6 +16,7 @@ namespace cvl {
         struct delayed_init {
             CVL_PUSH_DISABLE_FRIEND_WARNING
 
+            /* Will later have its definition filled in by 'impl::set_delayed_init_value'. */
             friend consteval auto cvl_delayed_init_value(delayed_init) -> auto;
 
             CVL_POP_DISABLE_FRIEND_WARNING
@@ -24,6 +26,7 @@ namespace cvl {
         struct set_delayed_init_value {
             CVL_PUSH_DISABLE_FRIEND_WARNING
 
+            /* Filling in the function previously declared in 'impl::delayed_init'. */
             friend consteval auto cvl_delayed_init_value(impl::delayed_init<Tag>) -> auto {
                 return Value;
             }
@@ -31,10 +34,12 @@ namespace cvl {
             CVL_POP_DISABLE_FRIEND_WARNING
 
             consteval {
+                /* Signal that initialization has taken place. */
                 impl::delayed_init_flag<Tag>.set();
             }
         };
 
+        /* Helper template to get the value for the 'delayed_init' tag. */
         template<std::meta::info Tag>
         constexpr inline auto delayed_init_value = cvl_delayed_init_value(impl::delayed_init<Tag>{});
 
