@@ -48,19 +48,23 @@ namespace cvl {
     /* TODO: Add requirements to type for 'std::meta::reflect_constant'. */
     template<typename T>
     struct delayed_init : impl::tagged {
-        consteval auto is_initialized(this const delayed_init &self) -> bool {
-            const auto &flag = extract<const cvl::once_flag &>(
+        consteval auto has_value(this const delayed_init self) -> bool {
+            const auto flag = extract<cvl::once_flag>(
                 self._substitute_tag(^^impl::delayed_init_flag)
             );
 
             return flag.get();
         }
 
-        consteval auto operator =(this const delayed_init &self, const T &value) -> const delayed_init & {
+        template<std::convertible_to<T> Other>
+        requires (not std::same_as<std::remove_cvref_t<Other>, delayed_init>)
+        consteval auto operator =(this const delayed_init &self, Other &&value) -> const delayed_init & {
             /* TODO: Error if initialized. */
 
             const auto set_value = self._substitute_tag(^^impl::set_delayed_init_value, {
-                std::meta::reflect_constant(value)
+                std::meta::reflect_constant(
+                    static_cast<T>(std::forward<Other>(value))
+                )
             });
 
             util::ensure_instantiation(set_value);
@@ -68,12 +72,20 @@ namespace cvl {
             return self;
         }
 
-        consteval auto operator *(this const delayed_init &self) -> const T & {
+        consteval auto operator *(this const delayed_init self) -> const T & {
             /* TODO: Error if not initialized. */
 
             return extract<const T &>(
                 self._substitute_tag(^^impl::delayed_init_value)
             );
+        }
+
+        consteval auto optional(this const delayed_init self) -> std::optional<const T &> {
+            if (not self.has_value()) {
+                return std::nullopt;
+            }
+
+            return *self;
         }
     };
 

@@ -54,13 +54,13 @@ namespace cvl {
     }
 
     struct once_flag : impl::tagged {
-        consteval auto _tracker(this const once_flag &self) -> std::meta::info {
+        consteval auto _tracker(this const once_flag self) -> std::meta::info {
             return extract<std::meta::info>(
                 self._substitute_tag(^^impl::once_flag_tracker)
             );
         }
 
-        consteval auto get(this const once_flag &self) -> bool {
+        consteval auto get(this const once_flag self) -> bool {
             const auto tracker = self._tracker();
 
             /* If the flag has been set, then the parameter will have an identifier. */
@@ -69,7 +69,7 @@ namespace cvl {
             );
         }
 
-        consteval auto set(this const once_flag &self) -> void {
+        consteval auto set(this const once_flag self) -> void {
             if (self.get()) {
                 return;
             }
