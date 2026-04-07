@@ -30,8 +30,9 @@ namespace cvl {
             using iterator_concept  = std::random_access_iterator_tag;
             using iterator_category = std::random_access_iterator_tag;
 
-            using reference_type  = const T &;
+            using reference       = const T &;
             using value_type      = T;
+            using pointer         = const T *;
             using difference_type = std::ptrdiff_t;
 
             /* The tag from the 'cvl::list'. */
@@ -52,8 +53,12 @@ namespace cvl {
                 );
             }
 
-            consteval auto operator *(this iterator self) -> reference_type {
+            consteval auto operator *(this const iterator self) -> reference {
                 return *self._index_value();
+            }
+
+            consteval auto operator ->(this const iterator self) -> pointer {
+                return std::addressof(*self);
             }
 
             consteval auto operator ++(this iterator &self) -> iterator & {
@@ -137,12 +142,19 @@ namespace cvl {
                 return lhs;
             }
 
-            consteval auto operator [](this iterator self, const difference_type index) -> reference_type {
+            consteval auto operator [](this iterator self, const difference_type index) -> reference {
                 self += index;
 
                 return *self;
             }
         };
+
+        using value_type      = T;
+        using reference       = const T &;
+        using const_reference = reference;
+
+        using const_iterator  = iterator;
+        using difference_type = std::ptrdiff_t;
 
         consteval list() = default;
 
@@ -164,7 +176,15 @@ namespace cvl {
             return std::default_sentinel;
         }
 
-        consteval auto _index_value(this const list &self, const std::size_t index) -> cvl::delayed_init<T> {
+        consteval auto cbegin(this const list self) -> const_iterator {
+            return self.begin();
+        }
+
+        consteval auto cend(this list) -> std::default_sentinel_t {
+            return std::default_sentinel;
+        }
+
+        consteval auto _index_value(this const list self, const std::size_t index) -> cvl::delayed_init<T> {
             return extract<cvl::delayed_init<T>>(
                 self._substitute_tag(^^impl::list_index_value, {
                     ^^T,
@@ -195,6 +215,22 @@ namespace cvl {
             self._index_value(next_index) = elem;
         }
 
+        consteval auto try_back(this const list self) -> std::optional<const T &> {
+            auto index = self._next_index();
+
+            if (index <= 0) {
+                return std::nullopt;
+            }
+
+            --index;
+
+            return *self._index_value(index);
+        }
+
+        consteval auto try_at(this const list self, const std::size_t index) -> std::optional<const T &> {
+            return self._index_value(index).optional();
+        }
+
         template<impl::container_compatible_range<T> R>
         consteval auto append_range(this const list self, R &&rng) -> void {
             auto index = self._next_index();
@@ -206,6 +242,23 @@ namespace cvl {
                 ++index;
             }
         }
+
+        [[nodiscard]]
+        consteval auto empty(this const list self) -> bool {
+            /* We are empty if the 0-th index has no value. */
+
+            return not self._index_value(0).has_value();
+        }
+
+        friend consteval auto operator ==(const list lhs, const list rhs) -> bool {
+            if (lhs._tag == rhs._tag) {
+                return true;
+            }
+
+            return std::ranges::equal(lhs, rhs);
+        }
+
+        /* TODO: Is it worth implementing <=>? Probably. */
     };
 
     template<std::ranges::input_range R>
