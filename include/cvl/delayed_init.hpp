@@ -14,24 +14,24 @@ namespace cvl {
 
         template<std::meta::info Tag>
         struct delayed_init {
-            CVL_PUSH_DISABLE_FRIEND_WARNING
+            CVL_DISABLE_FRIEND_WARNING(
 
-            /* Will later have its definition filled in by 'impl::set_delayed_init_value'. */
-            friend consteval auto cvl_delayed_init_value(delayed_init) -> auto;
+                /* Will later have its definition filled in by 'impl::set_delayed_init_value'. */
+                friend consteval auto cvl_delayed_init_value(delayed_init) -> auto;
 
-            CVL_POP_DISABLE_FRIEND_WARNING
+            )
         };
 
         template<std::meta::info Tag, auto Value>
         struct set_delayed_init_value {
-            CVL_PUSH_DISABLE_FRIEND_WARNING
+            CVL_DISABLE_FRIEND_WARNING(
 
-            /* Filling in the function previously declared in 'impl::delayed_init'. */
-            friend consteval auto cvl_delayed_init_value(impl::delayed_init<Tag>) -> auto {
-                return Value;
-            }
+                /* Filling in the function previously declared in 'impl::delayed_init'. */
+                friend consteval auto cvl_delayed_init_value(impl::delayed_init<Tag>) -> auto {
+                    return Value;
+                }
 
-            CVL_POP_DISABLE_FRIEND_WARNING
+            )
 
             consteval {
                 /* Signal that initialization has taken place. */

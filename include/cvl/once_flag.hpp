@@ -10,42 +10,41 @@ namespace cvl {
 
         template<std::meta::info Tag>
         struct once_flag {
-            CVL_PUSH_DISABLE_FRIEND_WARNING
+            CVL_DISABLE_FRIEND_WARNING(
 
-            /*
-                This function returns a reflection of itself,
-                which is seemingly the only way you can get a
-                reflection of a friend function such as this one.
+                /*
+                    This function returns a reflection of itself,
+                    which is seemingly the only way you can get a
+                    reflection of a friend function such as this one.
 
-                Later, 'impl::set_once_flag' will redeclare this
-                friend function, and will name the 'once_flag'
-                parameter, which we do not do here.
+                    Later, 'impl::set_once_flag' will redeclare this
+                    friend function, and will name the 'once_flag'
+                    parameter, which we do not do here.
 
-                When that redefinition occurs, the compiler will
-                then update whether that parameter has an identifier,
-                and that will cause the result of 'std::meta::has_identifer'
-                to change.
+                    When that redeclaratiom occurs, the compiler will
+                    then update whether that parameter has an identifier,
+                    and that will change the result of 'std::meta::has_identifier'.
 
-                We can then check that to see whether
-                'set_once_flag' has been instantiated.
-            */
-            friend consteval auto cvl_track_once_flag_set(once_flag) -> std::meta::info {
-                /* TODO: Use 'std::meta::current_function'. */
+                    We can then check that to see whether
+                    'impl::set_once_flag' has been instantiated.
+                */
+                friend consteval auto cvl_track_once_flag_set(once_flag) -> std::meta::info {
+                    /* TODO: Use 'std::meta::current_function'. */
 
-                return std::meta::access_context::current().scope();
-            }
+                    return std::meta::access_context::current().scope();
+                }
 
-            CVL_POP_DISABLE_FRIEND_WARNING
+            )
         };
 
         template<std::meta::info Tag>
         struct set_once_flag {
-            CVL_PUSH_DISABLE_FRIEND_WARNING
+            CVL_DISABLE_FRIEND_WARNING(
 
-            /* Redeclare friend function, naming the parameter. */
-            friend consteval auto cvl_track_once_flag_set(impl::once_flag<Tag> injected_name) -> std::meta::info;
+                /* Redeclare friend function, naming the parameter. */
+                friend consteval auto cvl_track_once_flag_set(impl::once_flag<Tag> injected_name) -> std::meta::info;
 
-            CVL_POP_DISABLE_FRIEND_WARNING
+            )
         };
 
         /* A helper template for us to call the friend function. */
