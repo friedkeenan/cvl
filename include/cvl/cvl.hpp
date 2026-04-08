@@ -5,5 +5,6 @@
 #include <cvl/list.hpp>
 #include <cvl/once_flag.hpp>
 #include <cvl/util.hpp>
+#include <cvl/variable.hpp>
 
 #include <cvl/undefines.hpp>
