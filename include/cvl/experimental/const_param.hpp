@@ -28,6 +28,10 @@ namespace cvl::experimental {
 
                 return *impl::const_param_value<Tag, T>;
             }
+
+            consteval auto operator ->(this const const_param self) -> const T * {
+                return std::addressof(*self);
+            }
         };
 
     }
