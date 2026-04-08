@@ -1,1 +1,3 @@
 #undef CVL_DISABLE_FRIEND_WARNING
+
+#undef CVL_ERROR

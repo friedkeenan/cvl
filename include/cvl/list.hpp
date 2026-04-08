@@ -54,7 +54,13 @@ namespace cvl {
             }
 
             consteval auto operator *(this const iterator self) -> reference {
-                return *self._index_value();
+                const auto value = self._index_value();
+
+                if (not value.has_value()) {
+                    CVL_ERROR("Cannot access element of 'cvl::list' before it has been inserted");
+                }
+
+                return *value;
             }
 
             consteval auto operator ->(this const iterator self) -> pointer {

@@ -59,7 +59,9 @@ namespace cvl {
         template<std::convertible_to<T> Other>
         requires (not std::same_as<std::remove_cvref_t<Other>, delayed_init>)
         consteval auto operator =(this const delayed_init &self, Other &&value) -> const delayed_init & {
-            /* TODO: Error if initialized. */
+            if (self.has_value()) {
+                CVL_ERROR("Cannot set value of 'cvl::delayed_init' which has already been initialized");
+            }
 
             const auto set_value = self._substitute_tag(^^impl::set_delayed_init_value, {
                 std::meta::reflect_constant(
@@ -73,7 +75,9 @@ namespace cvl {
         }
 
         consteval auto operator *(this const delayed_init self) -> const T & {
-            /* TODO: Error if not initialized. */
+            if (not self.has_value()) {
+                CVL_ERROR("Cannot use value of 'cvl::delayed_init' before it has been initialized");
+            }
 
             return extract<const T &>(
                 self._substitute_tag(^^impl::delayed_init_value)

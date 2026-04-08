@@ -23,7 +23,8 @@ namespace cvl::impl {
     */
     struct tagged {
         /*
-            Tagged types operate like a view, like 'std::meta::info' does.
+            Tagged types operate like a view, like
+            how 'std::meta::info' and pointers do.
 
             They in fact all refer to some other object,
             and operations on one tagged object will be
