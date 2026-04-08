@@ -35,4 +35,7 @@ namespace cvl::util {
         ));
     }
 
+    template<typename T, typename Other>
+    concept qualified_version_of = std::same_as<std::remove_cvref_t<T>, Other>;
+
 }

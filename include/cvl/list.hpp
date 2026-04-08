@@ -3,6 +3,7 @@
 #include <cvl/common.hpp>
 #include <cvl/delayed_init.hpp>
 #include <cvl/tag.hpp>
+#include <cvl/util.hpp>
 
 namespace cvl {
 
@@ -165,8 +166,8 @@ namespace cvl {
         consteval list() = default;
 
         template<impl::container_compatible_range<T> R>
-        requires (not std::same_as<std::remove_cvref_t<R>, list>)
-        consteval explicit list(R &&rng) : impl::tagged(), std::ranges::view_interface<list>() {
+        requires (not util::qualified_version_of<R, list>)
+        consteval explicit list(R &&rng) {
             this->append_range(std::forward<R>(rng));
         }
 
