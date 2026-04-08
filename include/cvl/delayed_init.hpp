@@ -80,6 +80,10 @@ namespace cvl {
             );
         }
 
+        consteval auto operator ->(this const delayed_init self) -> const T * {
+            return std::addressof(*self);
+        }
+
         consteval auto optional(this const delayed_init self) -> std::optional<const T &> {
             if (not self.has_value()) {
                 return std::nullopt;
