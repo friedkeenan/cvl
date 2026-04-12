@@ -18,6 +18,10 @@ namespace cvl {
             template<std::convertible_to<T> Other>
             requires (not cvl::util::qualified_version_of<Other, const_param>)
             consteval explicit(false) const_param(Other &&other) {
+                if (impl::const_param_value<Tag, T>.has_value()) {
+                    CVL_ERROR("Cannot set value of 'cvl::const_param' which already has its value set");
+                }
+
                 impl::const_param_value<Tag, T> = std::forward<Other>(other);
             }
 
