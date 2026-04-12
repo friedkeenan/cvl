@@ -24,7 +24,7 @@
 /* A 'cvl::list' may be default-initialized to an empty state. */
 constexpr cvl::list<int> example_list;
 
-/* We can check whether a 'cvl::list' is empty with the typical method. */
+/* We can check whether a 'cvl::list' is empty with the 'empty' method. */
 static_assert(example_list.empty());
 
 /*
@@ -105,6 +105,6 @@ int main() {
     }
 
     template for (constexpr auto &Value : example_list) {
-        std::printf("Updated Value: %d\n", Value);
+        std::printf("Updated value: %d\n", Value);
     }
 }
