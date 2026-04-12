@@ -4,7 +4,7 @@
 #include <cvl/delayed_init.hpp>
 #include <cvl/util.hpp>
 
-namespace cvl::experimental {
+namespace cvl {
 
     namespace impl {
 
@@ -42,13 +42,18 @@ namespace cvl::experimental {
         tag a template parameter, so we fall
         back to using a lambda type as our tag.
 
-        Having a default template parameter change
-        may be an ODR violation however. I'm not sure.
+        Having a default template parameter which
+        doesn't have a consistent value may be
+        an ODR violation however: https://stackoverflow.com/a/79289828
 
         If it is, then the compiler does not *seem* to care.
 
-        But that is the main reason why this
-        facility is regarded as "experimental".
+        But that is the primary reason why
+        I am unsure about this utility.
+
+        And I'm not sure if the constructor of
+        'impl::const_param' *must* be evaluated
+        before instantiating the function body.
     */
     template<typename T, typename Tag = decltype([]{})>
     constexpr inline auto const_param = impl::const_param<Tag, T>{};

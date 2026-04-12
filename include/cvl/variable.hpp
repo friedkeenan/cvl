@@ -7,8 +7,16 @@
 
 namespace cvl {
 
-    /* TODO: Use future requirements of 'cvl::list'. */
-    template<typename T>
+    namespace impl {
+
+        template<typename From, typename To>
+        concept only_explicitly_convertible_to = not std::convertible_to<From, To> and requires {
+            static_cast<To>(std::declval<From>());
+        };
+
+    }
+
+    template<util::constant_reflectable T>
     requires (not std::is_reference_v<T>)
     struct variable {
         /*
@@ -24,8 +32,18 @@ namespace cvl {
             this->states().push_back(std::forward<Other>(other));
         }
 
-        /* TODO: Explicit constructor for explicitly-convertible types. */
+        template<impl::only_explicitly_convertible_to<T> Other>
+        requires (not util::qualified_version_of<Other, variable>)
+        consteval explicit variable(Other &&other) {
+            this->states().push_back(
+                static_cast<T>(std::forward<Other>(other))
+            );
+        }
 
+        /*
+            Because we use a 'cvl::list' to update our states,
+            we can also just give access to that state list.
+        */
         consteval auto states(this const variable self) -> cvl::list<T> {
             return self._states;
         }
@@ -48,6 +66,11 @@ namespace cvl {
 
         consteval auto operator ->(this const variable self) -> const T * {
             return std::addressof(*self);
+        }
+
+        /* Used to explicitly access a variable as a dependent expression. */
+        consteval auto dependent(this const variable self, auto &&) -> const T & {
+            return *self;
         }
     };
 

@@ -35,6 +35,13 @@ namespace cvl::util {
         ));
     }
 
+    template<typename T>
+    concept constant_reflectable = (
+        std::is_copy_constructible_v<std::decay_t<T>> and
+
+        std::is_structural_v<std::decay_t<T>>
+    );
+
     template<typename T, typename Other>
     concept qualified_version_of = std::same_as<std::remove_cvref_t<T>, Other>;
 

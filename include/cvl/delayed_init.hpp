@@ -46,8 +46,7 @@ namespace cvl {
 
     }
 
-    /* TODO: Add requirements to type for 'std::meta::reflect_constant'. */
-    template<typename T>
+    template<util::constant_reflectable T>
     struct delayed_init : impl::tagged {
         consteval auto has_value(this const delayed_init self) -> bool {
             const auto flag = extract<cvl::once_flag>(

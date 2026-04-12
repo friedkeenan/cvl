@@ -10,5 +10,6 @@
 #include <vector>
 #include <iterator>
 #include <ranges>
+#include <algorithm>
 #include <type_traits>
 #include <concepts>

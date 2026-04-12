@@ -1,10 +1,11 @@
 #pragma once
 
-/*
-    NOTE: We separate out 'all.hpp' here so that
-    'experimental.hpp' can include it without
-    undefining all the macros.
-*/
-#include <cvl/all.hpp>
+#include <cvl/common.hpp>
+#include <cvl/delayed_init.hpp>
+#include <cvl/expand.hpp>
+#include <cvl/list.hpp>
+#include <cvl/once_flag.hpp>
+#include <cvl/util.hpp>
+#include <cvl/variable.hpp>
 
 #include <cvl/undefines.hpp>

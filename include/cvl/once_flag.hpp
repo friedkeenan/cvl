@@ -29,9 +29,7 @@ namespace cvl {
                     'impl::set_once_flag' has been instantiated.
                 */
                 friend consteval auto cvl_track_once_flag_set(once_flag) -> std::meta::info {
-                    /* TODO: Use 'std::meta::current_function'. */
-
-                    return std::meta::access_context::current().scope();
+                    return std::meta::current_function();
                 }
 
             )

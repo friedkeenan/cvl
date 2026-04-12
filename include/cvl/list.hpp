@@ -22,8 +22,8 @@ namespace cvl {
 
     }
 
-    /* TODO: Add future requirements for 'cvl::delayed_init'. */
-    template<typename T>
+    template<util::constant_reflectable T>
+    requires (not std::is_reference_v<T>)
     struct list : impl::tagged, std::ranges::view_interface<list<T>> {
         struct iterator {
             /* Our iterator can be random access because it just maps to an index. */
