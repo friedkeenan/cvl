@@ -11,12 +11,12 @@ namespace cvl {
         for each, and conjoin their interface
         by using a macro defined in 'defines.hpp'.
 
-        You apparently are effectively disallowed
+        We apparently are effectively disallowed
         from inheriting from 'std::meta::exception'
-        because you can't downgrade its destructor
+        because we can't downgrade its destructor
         from 'consteval' to 'constexpr' but at
-        the same time you can't define a 'consteval'
-        destructor yourself.
+        the same time we can't define a 'consteval'
+        destructor ourselves.
 
         So in the exception-supported environment,
         we just use 'std::meta::exception'.

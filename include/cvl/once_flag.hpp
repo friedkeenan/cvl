@@ -14,7 +14,7 @@ namespace cvl {
 
                 /*
                     This function returns a reflection of itself,
-                    which is seemingly the only way you can get a
+                    which is seemingly the only way we can get a
                     reflection of a friend function such as this one.
 
                     Later, 'impl::set_once_flag' will redeclare this
