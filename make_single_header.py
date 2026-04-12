@@ -72,5 +72,4 @@ if __name__ == "__main__":
     expander = IncludeExpander(include_dir="include")
 
     with open("cvl_single_header.hpp", "w") as f:
-        # NOTE: The experimental header includes the rest of the library too.
         expander.expand(f, "include/cvl/cvl.hpp")
