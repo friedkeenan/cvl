@@ -42,7 +42,7 @@ namespace cvl {
             /* The particular index that the iterator corresponds to. */
             std::ptrdiff_t  _index;
 
-            consteval auto _index_value(this iterator self) -> cvl::delayed_init<T> {
+            consteval auto _index_value(this const iterator self) -> cvl::delayed_init<T> {
                 return extract<cvl::delayed_init<T>>(
                     substitute(^^impl::list_index_value, {
                         std::meta::reflect_constant(self._tag),

@@ -17,7 +17,7 @@ namespace cvl::util {
     }
 
     /* Ensures that a template substitution gets instantiated by the compiler. */
-    consteval auto ensure_instantiation(std::meta::info entity) -> void {
+    consteval auto ensure_instantiation(const std::meta::info entity) -> void {
         if (is_type(entity)) {
             (void) extract<std::size_t>(substitute(
                 ^^impl::ensure_type, {entity}

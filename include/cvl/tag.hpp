@@ -36,14 +36,14 @@ namespace cvl::impl {
         std::meta::info _tag = std::meta::reflect_constant(this);
 
         /* A helper function to wrap our tag appropriately and send it off to the template. */
-        consteval auto _substitute_tag(this const tagged self, std::meta::info templ) -> std::meta::info {
+        consteval auto _substitute_tag(this const tagged self, const std::meta::info templ) -> std::meta::info {
             return substitute(templ, {
                 std::meta::reflect_constant(self._tag)
             });
         }
 
         template<std::meta::reflection_range R = std::initializer_list<std::meta::info>>
-        consteval auto _substitute_tag(this const tagged self, std::meta::info templ, R &&args) -> std::meta::info {
+        consteval auto _substitute_tag(this const tagged self, const std::meta::info templ, R &&args) -> std::meta::info {
             auto real_args = std::vector{std::meta::reflect_constant(self._tag)};
 
             real_args.append_range(std::forward<R>(args));
