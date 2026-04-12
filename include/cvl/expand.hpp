@@ -11,6 +11,10 @@ namespace cvl {
         struct loop_controller {
             cvl::once_flag _break_flag;
 
+            /*
+                Each loop iteration must be distinct,
+                so we track the index of the loop.
+            */
             std::size_t _index;
 
             consteval auto index(this const loop_controller self) -> std::size_t {
@@ -20,16 +24,6 @@ namespace cvl {
             consteval auto push_break(this const loop_controller self) -> void {
                 self._break_flag.set();
             }
-        };
-
-        template<typename Body>
-        concept loopable_body = requires {
-            /*
-                It would be nice to have more
-                requirements, but I would worry about
-                accidentally instantiating any templates.
-            */
-            ^^std::remove_reference_t<Body>::template operator ();
         };
 
         template<typename Body, std::meta::info... CallOperators>
@@ -78,8 +72,12 @@ namespace cvl {
         NOTE: We call 'impl:;expand_loop' in the
         function interface to force the compiler
         to update state and such appropriately.
+
+        TODO: It would be nice to have
+        some requirements on 'Body' but
+        that doesn't seem to work currently.
     */
-    template<impl::loopable_body Body, typename Replicator = [: impl::expand_loop<std::remove_reference_t<Body>>() :]>
+    template<typename Body, typename Replicator = [: impl::expand_loop<std::remove_reference_t<Body>>() :]>
     constexpr auto expand_loop(Body &&body) -> void {
         Replicator::execute(body);
     }
