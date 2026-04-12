@@ -16,8 +16,8 @@ int main() {
 
     consteval {
         /*
-            You can set a flag as many times as
-            you want, but you can't unset a flag.
+            We can set a flag as many times as
+            we want, but we can't unset a flag.
         */
         example_flag.set();
     }

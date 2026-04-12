@@ -19,9 +19,9 @@ int main() {
 
     consteval {
         /*
-            Uncommenting this line will result in an error.
+            Uncommenting the following line will result in an error.
 
-            You may only set a 'cvl::delayed_init' once.
+            This is because we may only set a 'cvl::delayed_init' once.
         */
         // int_value = 43;
     }
