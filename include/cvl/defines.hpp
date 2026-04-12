@@ -16,10 +16,10 @@
 
 #if defined(__cpp_exceptions)
 
-#define CVL_ERROR(what) throw ::std::meta::exception(what, ::std::meta::access_context::current().scope())
+#define CVL_ERROR(what) throw ::std::meta::exception(what, ::std::meta::current_function())
 
 #else
 
-#define CVL_ERROR(what) ::cvl::impl::reached_error<std::define_static_string(what), ::std::meta::access_context::current().scope()>()
+#define CVL_ERROR(what) ::cvl::impl::reached_error<std::define_static_string(what), ::std::meta::current_function()>()
 
 #endif
