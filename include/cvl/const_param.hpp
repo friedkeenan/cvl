@@ -18,8 +18,13 @@ namespace cvl {
             template<std::convertible_to<T> Other>
             requires (not cvl::util::qualified_version_of<Other, const_param>)
             consteval explicit(false) const_param(Other &&other) {
+                /*
+                    The compiler may call our constructor multiple times.
+
+                    If that happens, we just return early.
+                */
                 if (impl::const_param_value<Tag, T>.has_value()) {
-                    CVL_ERROR("Cannot set value of 'cvl::const_param' which already has its value set");
+                    return;
                 }
 
                 impl::const_param_value<Tag, T> = std::forward<Other>(other);
@@ -59,7 +64,7 @@ namespace cvl {
         'impl::const_param' *must* be evaluated
         before instantiating the function body.
     */
-    template<typename T, typename Tag = decltype([]{})>
+    template<util::constant_reflectable T, typename Tag = decltype([]{})>
     constexpr inline auto const_param = impl::const_param<Tag, T>{};
 
 }

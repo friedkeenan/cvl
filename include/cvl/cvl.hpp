@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cvl/common.hpp>
+#include <cvl/const_param.hpp>
 #include <cvl/delayed_init.hpp>
 #include <cvl/expand.hpp>
 #include <cvl/list.hpp>
