@@ -166,14 +166,15 @@ namespace cvl {
         consteval list() = default;
 
         template<impl::container_compatible_range<T> R>
-        requires (not util::qualified_version_of<R, list>)
-        consteval explicit list(R &&rng) {
+        consteval list(std::from_range_t, R &&rng) {
             this->append_range(std::forward<R>(rng));
         }
 
-        consteval explicit(false) list(const std::initializer_list<T> rng) {
-            this->append_range(rng);
-        }
+        template<impl::container_compatible_range<T> R>
+        requires (not util::qualified_version_of<R, list>)
+        consteval explicit list(R &&rng) : list(std::from_range, std::forward<R>(rng)) {}
+
+        consteval explicit(false) list(const std::initializer_list<T> rng) : list(std::from_range, rng) {}
 
         consteval auto begin(this const list self) -> iterator {
             return iterator{self._tag, 0};
@@ -267,6 +268,9 @@ namespace cvl {
 
         /* TODO: Is it worth implementing <=>? Probably. */
     };
+
+    template<std::ranges::input_range R>
+    list(std::from_range_t, R &&) -> list<std::ranges::range_value_t<R>>;
 
     template<std::ranges::input_range R>
     list(R &&) -> list<std::ranges::range_value_t<R>>;

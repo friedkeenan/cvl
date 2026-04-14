@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <vector>
+#include <ranges>
 
 #include <cvl/cvl.hpp>
 
@@ -40,6 +41,9 @@ constexpr cvl::list initializer_list = {1, 2, 3};
     'std::initializer_list' requires an explicit constructor call.
 */
 constexpr auto vector_list = cvl::list(std::vector{1, 2, 3});
+
+/* There is also a 'std::from_range' constructor overload. */
+constexpr auto from_range_list = cvl::list(std::from_range, std::vector{1, 2, 3});
 
 int main() {
     consteval {
