@@ -27,3 +27,21 @@ jobs:
 
       - name: Run codespell
         run: codespell *
+
+  check-single-header:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      - name: Generate single header
+        run: ./make_single_header.py -o generated_single_header.hpp
+
+      - name: Compare against committed header
+        run: diff cvl_single_header.hpp generated_single_header.hpp

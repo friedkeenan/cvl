@@ -69,7 +69,15 @@ class IncludeExpander:
                 output.write(line)
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--output", "-o", help="The path to output the header", type=Path, default="cvl_single_header.hpp")
+
+    args = parser.parse_args()
+
     expander = IncludeExpander(include_dir="include")
 
-    with open("cvl_single_header.hpp", "w") as f:
+    with args.output.open("w") as f:
         expander.expand(f, "include/cvl/cvl.hpp")
