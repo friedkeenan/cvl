@@ -41,7 +41,7 @@ If you however wish to use this in a sincere project, then by all means feel fre
 
 cvl provides two main sets of features: Things which model mutable consteval state, and things which operate on that mutable consteval state.
 
-### Mutable State
+***
 
 The following entities within cvl model mutable state:
 
@@ -61,7 +61,20 @@ The following entities within cvl model mutable state:
     - A `cvl::once_flag` models a flag which can never be unset after it has been set at least once.
     - See its example [here](examples/once_flag.cpp).
 
-Each of these entities have view-like semantics. If we take a copy of an object of these types, then the original object and the copied object will both refer to the same value, and updating one will also update the other. For instance:
+***
+
+The following entities within cvl operate on mutable state:
+
+- `cvl::expand_loop`
+    - With `cvl::expand_loop` we are able to keep expanding a loop like with a `template for`, but crucially we can stop expanding based on any arbitrary, compile-time condition.
+    - See its example [here](examples/expand_loop.cpp).
+- `cvl::const_param`
+    - A `cvl::const_param` allows us to lift a value passed as a function parameter into something we can use as a template parameter.
+    - See its example [here](examples/const_param.cpp).
+
+## Copying Mutable State
+
+Every entity in cvl which models mutable consteval state has view-like semantics. That means that if we take a copy of an object of those types, then the original object and the copied object will both refer to the same value, and updating one will also update the other. For instance:
 
 ```cpp
 constexpr cvl::variable original_var = 1;
@@ -80,7 +93,7 @@ consteval {
 static_assert(*original_var == 2);
 ```
 
-In order to "fork" a `cvl::variable` for instance, then we would need to dereference the original variable, like so:
+In order to "fork" a `cvl::variable` instead, then we would need to dereference the original variable, like so:
 
 ```cpp
 constexpr cvl::variable original_var = 1;
@@ -90,7 +103,9 @@ constexpr cvl::variable forked_var = *original_var;
 
 These two variables will then refer to distinct objects, and updating one would not update the other.
 
-The originating declarations of each of these entities must also be **static variables**. This means that you can define them at namespace scope, as static variables inside a class, or as static variables inside a function. For instance:
+## Declaring Mutable State
+
+The originating declaration of an entity within cvl that models mutable consteval state must also be a **static variable**. This means that you can define such objects as variables at namespace scope, as static variables inside a class, or as static variables inside a function. For instance:
 
 ```cpp
 constexpr cvl::variable namespace_scoped = 1;
@@ -125,17 +140,6 @@ auto some_function() -> void {
 ```
 
 The declaration of `CopiedDeclaration` is allowed, because it is only referring to the same object as `OriginalDeclaration`, and is not declaring a new object.
-
-### Operations on Mutable State
-
-The following entities within cvl operate on mutable state:
-
-- `cvl::expand_loop`
-    - With `cvl::expand_loop` we are able to keep expanding a loop like with a `template for`, but crucially we can stop expanding based on any arbitrary, compile-time condition.
-    - See its example [here](examples/expand_loop.cpp).
-- `cvl::const_param`
-    - A `cvl::const_param` allows us to lift a value passed as a function parameter into something we can use as a template parameter.
-    - See its example [here](examples/const_param.cpp).
 
 ## Order of Evaluation
 
