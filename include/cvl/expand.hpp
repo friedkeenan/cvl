@@ -35,18 +35,16 @@ namespace cvl {
             }
         };
 
-        /* TODO: Put in function bodies (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=124824). */
-        template<typename Body>
-        constexpr inline cvl::once_flag break_flag;
-
         template<typename Body>
         consteval auto expand_loop() -> std::meta::info {
             auto args = std::vector{^^Body};
 
+            static constexpr cvl::once_flag break_flag;
+
             std::size_t index = 0;
 
             while (true) {
-                const auto controller = impl::loop_controller{impl::break_flag<Body>, index};
+                const auto controller = impl::loop_controller{break_flag, index};
 
                 const auto call_operator = substitute(^^Body::template operator (), {
                     std::meta::reflect_constant(controller)
@@ -56,7 +54,7 @@ namespace cvl {
 
                 args.push_back(std::meta::reflect_constant(call_operator));
 
-                if (impl::break_flag<Body>.get()) {
+                if (break_flag.get()) {
                     break;
                 }
 

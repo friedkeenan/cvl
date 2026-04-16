@@ -9,10 +9,9 @@ namespace cvl {
     namespace impl {
 
         template<typename Tag, typename T>
-        constexpr inline cvl::delayed_init<T> const_param_value;
-
-        template<typename Tag, typename T>
         struct const_param {
+            static constexpr cvl::delayed_init<T> _value_holder = {};
+
             consteval const_param() = default;
 
             template<std::convertible_to<T> Other>
@@ -23,19 +22,19 @@ namespace cvl {
 
                     If that happens, we just return early.
                 */
-                if (impl::const_param_value<Tag, T>.has_value()) {
+                if (_value_holder.has_value()) {
                     return;
                 }
 
-                impl::const_param_value<Tag, T> = std::forward<Other>(other);
+                _value_holder = std::forward<Other>(other);
             }
 
             consteval auto operator *(this const_param) -> const T & {
-                if (not impl::const_param_value<Tag, T>.has_value()) {
+                if (not _value_holder.has_value()) {
                     CVL_ERROR("Cannot get value of 'cvl::const_param' before it's been passed a value");
                 }
 
-                return *impl::const_param_value<Tag, T>;
+                return *_value_holder;
             }
 
             consteval auto operator ->(this const const_param self) -> const T * {

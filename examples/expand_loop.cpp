@@ -18,9 +18,6 @@
     similar to a 'template while (true)'.
 */
 
-/* We will use this variable later in this example. */
-constexpr cvl::variable string_var = std::define_static_string("Initial state.");
-
 int main() {
     /*
         The body for 'cvl::expand_loop' must
@@ -51,6 +48,8 @@ int main() {
     });
 
     /* We can also use and update our own variables with 'cvl::expand_loop'. */
+    static constexpr cvl::variable string_var = std::define_static_string("Initial state.");
+
     cvl::expand_loop([]<auto Loop>() {
         /*
             We pull out the current string, making

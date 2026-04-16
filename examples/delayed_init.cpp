@@ -1,8 +1,8 @@
 #include <cvl/cvl.hpp>
 
-constexpr cvl::delayed_init<int> int_value;
-
 int main() {
+    static constexpr cvl::delayed_init<int> int_value;
+
     /* A 'cvl::delayed_init' begins with no value. */
     static_assert(not int_value.has_value());
 

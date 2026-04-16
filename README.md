@@ -41,7 +41,7 @@ If you however wish to use this in a sincere project, then by all means feel fre
 
 cvl provides two main sets of features: Things which model mutable consteval state, and things which operate on that mutable consteval state.
 
-***
+### Mutable State
 
 The following entities within cvl model mutable state:
 
@@ -90,7 +90,43 @@ constexpr cvl::variable forked_var = *original_var;
 
 These two variables will then refer to distinct objects, and updating one would not update the other.
 
-***
+The originating declarations of each of these entities must also be **static variables**. This means that you can define them at namespace scope, as static variables inside a class, or as static variables inside a function. For instance:
+
+```cpp
+constexpr cvl::variable namespace_scoped = 1;
+
+struct some_class {
+    static constexpr cvl::variable class_scoped = 2;
+};
+
+auto some_function() -> void {
+    static constexpr cvl::variable FunctionScoped = 3;
+}
+```
+
+All these declarations are fine. What would not be fine would be something like the following:
+
+```cpp
+auto some_function() -> void {
+    constexpr cvl::variable AutomaticStorage = 4;
+}
+```
+
+Where `AutomaticStorage` (at least conceptually) lives on the stack, and does not have a static address. Attempting a declaration like this one will result in a compiler error.
+
+We can, however, take copies of these objects without them needing to be static. For instance:
+
+```cpp
+auto some_function() -> void {
+    static constexpr cvl::variable OriginalDeclaration = 5;
+
+    constexpr cvl::variable CopiedDeclaration = OriginalDeclaration;
+}
+```
+
+The declaration of `CopiedDeclaration` is allowed, because it is only referring to the same object as `OriginalDeclaration`, and is not declaring a new object.
+
+### Operations on Mutable State
 
 The following entities within cvl operate on mutable state:
 
@@ -101,13 +137,11 @@ The following entities within cvl operate on mutable state:
     - A `cvl::const_param` allows us to lift a value passed as a function parameter into something we can use as a template parameter.
     - See its example [here](examples/const_param.cpp).
 
-## Known Limitations
+## Order of Evaluation
 
-There are some known issues and limitations with this library.
+In the use of this library, you may run into some issues pertaining to order of evaluation.
 
-### Order of Evaluation
-
-The most glaring issue is that the compiler will often try to outsmart us and evaluate our stateful consteval code at inopportune times. This is a problem not just with cvl, but also with any other stateful consteval functionality, including for instance the standard `std::meta::is_complete_type` function.
+Sometimes, the compiler will try to outsmart us and evaluate our stateful consteval code at inopportune times for what we intend. This is a problem not just with cvl, but also with any other stateful consteval functionality, including for instance the standard `std::meta::is_complete_type` function.
 
 This can manifest in several ways. For example, we can come across the following strange behavior:
 
@@ -215,34 +249,8 @@ int main() {
 
 This will get evaluated in the right order, and makes it clear at what point values are being pulled out of a given variable.
 
-### Compiler Support
+## Compiler Support
 
-The other known limitations come down to the present state of compiler support.
+This library is currently supported by GCC, which I am very grateful for.
 
-Due to a particular technique used in the implementation of this library, this library is not currently supported by the experimental Clang reflection branch. It is however presently supported by GCC, which I am very grateful for.
-
-But also due to some particulars with current-day GCC (which could change very quickly), we are somewhat limited in where we can declare certain things like our `cvl::variable`.
-
-Due to [a bug](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=124824) in GCC, we can't declare our mutable-state-modeling entities in a function scope, like the following:
-
-```cpp
-auto some_function() -> void {
-    static constexpr cvl::variable FunctionScoped = 1;
-}
-```
-
-This doesn't actually limit what we can do though, because we can still just declare all this stuff at namespace or class scope:
-
-```cpp
-constexpr cvl::variable namespace_scoped = 1;
-
-struct some_class {
-    static constexpr cvl::variable class_scoped = 2;
-};
-
-auto some_function() -> void {
-    /* Do something with 'namespace_scoped' or 'some_class::class_scoped'... */
-}
-```
-
-So it just ends up making it somewhat annoying to organize, and doesn't prevent us from achieving any functionality.
+However, due to a particular technique used in the implementation of this library, this library is unfortunately not currently supported by the experimental Clang reflection branch.

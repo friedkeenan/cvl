@@ -365,10 +365,9 @@ namespace cvl {
     namespace impl {
 
         template<typename Tag, typename T>
-        constexpr inline cvl::delayed_init<T> const_param_value;
-
-        template<typename Tag, typename T>
         struct const_param {
+            static constexpr cvl::delayed_init<T> _value_holder = {};
+
             consteval const_param() = default;
 
             template<std::convertible_to<T> Other>
@@ -379,19 +378,19 @@ namespace cvl {
 
                     If that happens, we just return early.
                 */
-                if (impl::const_param_value<Tag, T>.has_value()) {
+                if (_value_holder.has_value()) {
                     return;
                 }
 
-                impl::const_param_value<Tag, T> = std::forward<Other>(other);
+                _value_holder = std::forward<Other>(other);
             }
 
             consteval auto operator *(this const_param) -> const T & {
-                if (not impl::const_param_value<Tag, T>.has_value()) {
+                if (not _value_holder.has_value()) {
                     CVL_ERROR("Cannot get value of 'cvl::const_param' before it's been passed a value");
                 }
 
-                return *impl::const_param_value<Tag, T>;
+                return *_value_holder;
             }
 
             consteval auto operator ->(this const const_param self) -> const T * {
@@ -457,18 +456,16 @@ namespace cvl {
             }
         };
 
-        /* TODO: Put in function bodies (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=124824). */
-        template<typename Body>
-        constexpr inline cvl::once_flag break_flag;
-
         template<typename Body>
         consteval auto expand_loop() -> std::meta::info {
             auto args = std::vector{^^Body};
 
+            static constexpr cvl::once_flag break_flag;
+
             std::size_t index = 0;
 
             while (true) {
-                const auto controller = impl::loop_controller{impl::break_flag<Body>, index};
+                const auto controller = impl::loop_controller{break_flag, index};
 
                 const auto call_operator = substitute(^^Body::template operator (), {
                     std::meta::reflect_constant(controller)
@@ -478,7 +475,7 @@ namespace cvl {
 
                 args.push_back(std::meta::reflect_constant(call_operator));
 
-                if (impl::break_flag<Body>.get()) {
+                if (break_flag.get()) {
                     break;
                 }
 

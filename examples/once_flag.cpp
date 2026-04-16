@@ -1,8 +1,8 @@
 #include <cvl/cvl.hpp>
 
-constexpr cvl::once_flag example_flag;
-
 int main() {
+    static constexpr cvl::once_flag example_flag;
+
     /* A 'cvl::once_flag' begins as unset. */
     static_assert(not example_flag.get());
 
