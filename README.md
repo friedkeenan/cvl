@@ -39,11 +39,11 @@ If you however wish to use this in a sincere project, then by all means feel fre
 
 ## Features
 
-cvl provides two main sets of features: Things which model mutable consteval state, and things which operate on that mutable consteval state.
+`cvl` provides two main sets of features: Things which model mutable consteval state, and things which operate on that mutable consteval state.
 
 ***
 
-The following entities within cvl model mutable state:
+The following entities within `cvl` model mutable state:
 
 - `cvl::variable`
     - A `cvl::variable` models a mutable variable, and it can be updated an arbitrary number of times.
@@ -63,10 +63,10 @@ The following entities within cvl model mutable state:
 
 ***
 
-The following entities within cvl operate on mutable state:
+The following entities within `cvl` operate on mutable state:
 
 - `cvl::expand_loop`
-    - With `cvl::expand_loop` we are able to keep expanding a loop like with a `template for`, but crucially we can stop expanding based on any arbitrary, compile-time condition.
+    - With `cvl::expand_loop`, we are able to keep expanding a loop like with a `template for`, but crucially we can stop expanding based on any arbitrary, compile-time condition.
     - See its example [here](examples/expand_loop.cpp).
 - `cvl::const_param`
     - A `cvl::const_param` allows us to lift a value passed as a function parameter into something we can use as a template parameter.
@@ -74,7 +74,7 @@ The following entities within cvl operate on mutable state:
 
 ## Copying Mutable State
 
-Every entity in cvl which models mutable consteval state has view-like semantics. That means that if we take a copy of an object of those types, then the original object and the copied object will both refer to the same value, and updating one will also update the other. For instance:
+Every entity in `cvl` which models mutable consteval state has view-like semantics. That means that if we take a copy of an object of those types, then the original object and the copied object will both refer to the same value, and updating one will also update the other. For instance:
 
 ```cpp
 constexpr cvl::variable original_var = 1;
@@ -105,7 +105,7 @@ These two variables will then refer to distinct objects, and updating one would 
 
 ## Declaring Mutable State
 
-The originating declaration of an entity within cvl that models mutable consteval state must also be a **static variable**. This means that you can define such objects as variables at namespace scope, as static variables inside a class, or as static variables inside a function. For instance:
+The originating declaration of an entity within `cvl` that models mutable consteval state must also be a **static variable**. This means that you can define such objects as variables at namespace scope, as static variables inside a class, or as static variables inside a function. For instance:
 
 ```cpp
 constexpr cvl::variable namespace_scoped = 1;
@@ -145,7 +145,7 @@ The declaration of `CopiedDeclaration` is allowed, because it is only referring 
 
 In the use of this library, you may run into some issues pertaining to order of evaluation.
 
-Sometimes, the compiler will try to outsmart us and evaluate our stateful consteval code at inopportune times for what we intend. This is a problem not just with cvl, but also with any other stateful consteval functionality, including for instance the standard `std::meta::is_complete_type` function.
+Sometimes, the compiler will try to outsmart us and evaluate our stateful consteval code at inopportune times for what we intend. This is a problem not just with `cvl`, but also with any other stateful consteval functionality, including for instance the standard `std::meta::is_complete_type` function.
 
 This can manifest in several ways. For example, we can come across the following strange behavior:
 
