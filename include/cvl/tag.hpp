@@ -23,8 +23,8 @@ namespace cvl::impl {
     */
     struct tagged {
         /*
-            Tagged types operate like a view, like
-            how 'std::meta::info' and pointers do.
+            Tagged types operate like a view, like how
+            'std::meta::info' and pointer types do.
 
             They in fact all refer to some other object,
             and operations on one tagged object will be
@@ -32,13 +32,38 @@ namespace cvl::impl {
             refer to the same tag.
         */
 
-        /*
-            We get the constant of the 'this' pointer as our unique tag.
+        std::meta::info _tag;
 
-            This means that all originating-declarations (i.e. not copies)
-            of an 'impl::tagged' object must have a static address.
-        */
-        std::meta::info _tag = std::meta::reflect_constant(this);
+        consteval tagged() {
+            /*
+                We get the constant of our 'this' pointer as our unique tag.
+
+                This means that all originating-declarations
+                (i.e. not copies) of an 'impl::tagged' object
+                must have a static address.
+
+                I believe that whether our address is static
+                is only able to be checked by catching the
+                exception thrown by 'std::meta::reflect_constant'.
+
+                That then means that we can only give a better
+                diagnostic when exceptions are enabled.
+            */
+            #if defined(__cpp_exceptions)
+
+            try {
+                this->_tag = std::meta::reflect_constant(this);
+            } catch (const std::meta::exception &) {
+                /* Rethrow a more helpful exception. */
+                CVL_ERROR("A tagged object must have a static address, but this object has a non-static address");
+            }
+
+            #else
+
+            this->_tag = std::meta::reflect_constant(this);
+
+            #endif
+        }
 
         /* A helper function to wrap our tag appropriately and send it off to the template. */
         consteval auto _substitute_tag(this const tagged self, const std::meta::info templ) -> std::meta::info {
