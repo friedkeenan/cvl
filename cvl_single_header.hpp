@@ -856,7 +856,7 @@ namespace cvl {
         }
 
         /* Used to explicitly access a variable as a dependent expression. */
-        consteval auto dependent(this const variable self, auto &&) -> const T & {
+        consteval auto dependent_value(this const variable self, auto &&) -> const T & {
             return *self;
         }
     };

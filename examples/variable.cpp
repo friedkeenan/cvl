@@ -33,10 +33,10 @@ int main() {
             will try to outsmart us and evaluate certain
             things at inopportune times for what we intend.
 
-            For this problem, 'cvl::variable' has a
-            helper method 'dependent' which allows
-            us to explicitly get its value through
-            a dependent expression.
+            For this problem, 'cvl::variable' has
+            a helper method 'dependent_value' which
+            allows us to explicitly get its value
+            through a dependent expression.
         */
 
         /*
@@ -53,7 +53,7 @@ int main() {
             is not actually used in the expression.
             Its name is only there to massage the compiler.
         */
-        constexpr int Current = example_var.dependent(Value);
+        constexpr int Current = example_var.dependent_value(Value);
 
         std::printf("Current: %d\n", Current);
 

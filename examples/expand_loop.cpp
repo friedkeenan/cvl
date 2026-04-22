@@ -55,7 +55,7 @@ int main() {
             We pull out the current string, making
             it dependent on the 'Loop' parameter.
         */
-        constexpr auto Current = string_var.dependent(Loop);
+        constexpr auto Current = string_var.dependent_value(Loop);
 
         std::printf("String %zu: %s\n", Loop.index(), Current);
 

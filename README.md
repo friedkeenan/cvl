@@ -174,7 +174,7 @@ We can get around this by introducing a dependent name, like so:
 ```cpp
 template<typename T>
 constexpr auto templated_function() -> int {
-    constexpr int SomeValue = some_variable.dependent(^^T);
+    constexpr int SomeValue = some_variable.dependent_value(^^T);
 
     return SomeValue;
 }
