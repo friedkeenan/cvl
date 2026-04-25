@@ -8,7 +8,7 @@ namespace cvl::impl {
         We use friend injection in order to introduce
         our "consteval state", and since friend injection
         operates on function signatures, and thereby
-        operates on *types*, we  then need to make sure
+        operates on *types*, we then need to make sure
         that each "state" has its own unique type.
 
         We accomplish this by creating a "tag" that will
@@ -19,7 +19,7 @@ namespace cvl::impl {
         conveniently and automatically get a unique tag,
         an object of type 'cvl::impl::tag', which can then
         be passed off to various templates to get at the
-        "backend" of a given state.
+        "backend" of a given stateful object.
     */
 
     /* Forward declare. */
