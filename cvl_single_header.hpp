@@ -98,7 +98,7 @@ namespace cvl::impl {
         We use friend injection in order to introduce
         our "consteval state", and since friend injection
         operates on function signatures, and thereby
-        operates on *types*, we  thenneed to make sure
+        operates on *types*, we  then need to make sure
         that each "state" has its own unique type.
 
         We accomplish this by creating a "tag" that will
@@ -107,10 +107,55 @@ namespace cvl::impl {
 
         Tagged entities can inherit from 'impl::tagged' and
         conveniently and automatically get a unique tag,
-        an object of type 'std::meta::info', which can then
+        an object of type 'cvl::impl::tag', which can then
         be passed off to various templates to get at the
         "backend" of a given state.
     */
+
+    /* Forward declare. */
+    struct tagged;
+
+    struct tag {
+        std::meta::info _tag;
+
+        /*
+            NOTE: We eagerly turn the address
+            into a 'std::meta::info' so that
+            we can error on object construction
+            if the address is not static, instead
+            of waiting until it's used as a tag.
+        */
+        consteval explicit tag(const impl::tagged *address) {
+            /*
+                I believe that whether an address is static
+                is only able to be checked by catching the
+                exception thrown by 'std::meta::reflect_constant'.
+
+                That then means that we can only give a better
+                diagnostic when exceptions are enabled.
+            */
+            #if defined(__cpp_exceptions)
+
+            try {
+                this->_tag = std::meta::reflect_constant(address);
+            } catch (const std::meta::exception &) {
+                /* Rethrow a more helpful exception. */
+                CVL_ERROR("A tagged object must have a static address, but this object has a non-static address");
+            }
+
+            #else
+
+            this->_tag = std::meta::reflect_constant(address);
+
+            #endif
+        }
+
+        /* A default constructor yielding a "null tag" is helpful for other code. */
+        consteval tag() = default;
+
+        consteval auto operator ==(const tag &) const -> bool = default;
+    };
+
     struct tagged {
         /*
             Tagged types operate like a view, like how
@@ -122,38 +167,14 @@ namespace cvl::impl {
             refer to the same tag.
         */
 
-        std::meta::info _tag;
+        /*
+            We get the constant of our 'this' pointer as our unique tag.
 
-        consteval tagged() {
-            /*
-                We get the constant of our 'this' pointer as our unique tag.
-
-                This means that all originating-declarations
-                (i.e. not copies) of an 'impl::tagged' object
-                must have a static address.
-
-                I believe that whether our address is static
-                is only able to be checked by catching the
-                exception thrown by 'std::meta::reflect_constant'.
-
-                That then means that we can only give a better
-                diagnostic when exceptions are enabled.
-            */
-            #if defined(__cpp_exceptions)
-
-            try {
-                this->_tag = std::meta::reflect_constant(this);
-            } catch (const std::meta::exception &) {
-                /* Rethrow a more helpful exception. */
-                CVL_ERROR("A tagged object must have a static address, but this object has a non-static address");
-            }
-
-            #else
-
-            this->_tag = std::meta::reflect_constant(this);
-
-            #endif
-        }
+            This means that all originating-declarations
+            (i.e. not copies) of an 'impl::tagged' object
+            must have a static address.
+        */
+        impl::tag _tag = impl::tag(this);
 
         /* A helper function to wrap our tag appropriately and send it off to the template. */
         consteval auto _substitute_tag(this const tagged self, const std::meta::info templ) -> std::meta::info {
@@ -224,7 +245,7 @@ namespace cvl {
 
     namespace impl {
 
-        template<std::meta::info Tag>
+        template<impl::tag>
         struct once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -251,7 +272,7 @@ namespace cvl {
             )
         };
 
-        template<std::meta::info Tag>
+        template<impl::tag Tag>
         struct set_once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -262,7 +283,7 @@ namespace cvl {
         };
 
         /* A helper template for us to call the friend function. */
-        template<std::meta::info Tag>
+        template<impl::tag Tag>
         constexpr inline std::meta::info once_flag_tracker = cvl_track_once_flag_set(impl::once_flag<Tag>{});
 
     }
@@ -301,10 +322,10 @@ namespace cvl {
     namespace impl {
 
         /* Tracks whether initialization has happened. */
-        template<std::meta::info Tag>
+        template<impl::tag>
         constexpr inline cvl::once_flag delayed_init_flag;
 
-        template<std::meta::info Tag>
+        template<impl::tag>
         struct delayed_init {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -314,7 +335,7 @@ namespace cvl {
             )
         };
 
-        template<std::meta::info Tag, auto Value>
+        template<impl::tag Tag, auto Value>
         struct set_delayed_init_value {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -332,7 +353,7 @@ namespace cvl {
         };
 
         /* Helper template to get the value for the 'delayed_init' tag. */
-        template<std::meta::info Tag>
+        template<impl::tag Tag>
         constexpr inline auto delayed_init_value = cvl_delayed_init_value(impl::delayed_init<Tag>{});
 
     }
@@ -542,7 +563,7 @@ namespace cvl {
     namespace impl {
 
         /* Each element in a 'cvl::list' is stored here, at a particular index. */
-        template<std::meta::info Tag, typename T, std::size_t Index>
+        template<impl::tag, typename T, std::size_t Index>
         constexpr inline cvl::delayed_init<T> list_index_value;
 
         template<typename R, typename T>
@@ -569,7 +590,7 @@ namespace cvl {
             using difference_type = std::ptrdiff_t;
 
             /* The tag from the 'cvl::list'. */
-            std::meta::info _tag;
+            impl::tag _tag;
 
             /* The particular index that the iterator corresponds to. */
             std::ptrdiff_t  _index;

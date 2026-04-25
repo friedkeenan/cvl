@@ -10,10 +10,10 @@ namespace cvl {
     namespace impl {
 
         /* Tracks whether initialization has happened. */
-        template<std::meta::info Tag>
+        template<impl::tag>
         constexpr inline cvl::once_flag delayed_init_flag;
 
-        template<std::meta::info Tag>
+        template<impl::tag>
         struct delayed_init {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -23,7 +23,7 @@ namespace cvl {
             )
         };
 
-        template<std::meta::info Tag, auto Value>
+        template<impl::tag Tag, auto Value>
         struct set_delayed_init_value {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -41,7 +41,7 @@ namespace cvl {
         };
 
         /* Helper template to get the value for the 'delayed_init' tag. */
-        template<std::meta::info Tag>
+        template<impl::tag Tag>
         constexpr inline auto delayed_init_value = cvl_delayed_init_value(impl::delayed_init<Tag>{});
 
     }

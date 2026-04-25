@@ -10,7 +10,7 @@ namespace cvl {
     namespace impl {
 
         /* Each element in a 'cvl::list' is stored here, at a particular index. */
-        template<std::meta::info Tag, typename T, std::size_t Index>
+        template<impl::tag, typename T, std::size_t Index>
         constexpr inline cvl::delayed_init<T> list_index_value;
 
         template<typename R, typename T>
@@ -37,7 +37,7 @@ namespace cvl {
             using difference_type = std::ptrdiff_t;
 
             /* The tag from the 'cvl::list'. */
-            std::meta::info _tag;
+            impl::tag _tag;
 
             /* The particular index that the iterator corresponds to. */
             std::ptrdiff_t  _index;
