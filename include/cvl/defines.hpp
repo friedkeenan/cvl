@@ -20,6 +20,6 @@
 
 #else
 
-#define CVL_ERROR(what) ::cvl::impl::reached_error<std::define_static_string(what), ::std::meta::current_function()>()
+#define CVL_ERROR(what) ::cvl::impl::reached_error<::std::define_static_string(what), ::std::meta::current_function()>()
 
 #endif
