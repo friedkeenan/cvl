@@ -255,6 +255,6 @@ This will get evaluated in the right order, and makes it clear at what point val
 
 ## Compiler Support
 
-This library is currently supported by GCC, which I am very grateful for.
+This library is currently supported by GCC 16 and newer, which I am very grateful for.
 
-However, due to a particular technique used in the implementation of this library, this library is unfortunately not currently supported by the experimental Clang reflection branch.
+Unfortunately however, due to a particular technique used in the implementation of this library, this library is not currently supported by the experimental Clang reflection branch, which does not behave correctly with that technique.
