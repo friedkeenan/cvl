@@ -1,0 +1,6 @@
+add_example(const_param)
+add_example(delayed_init)
+add_example(expand_loop)
+add_example(list)
+add_example(once_flag)
+add_example(variable)
