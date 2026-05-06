@@ -45,3 +45,26 @@ jobs:
 
       - name: Compare against committed header
         run: diff cvl_single_header.hpp generated_single_header.hpp
+
+  build-examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            cmake \
+            ninja-build \
+            gcc-16 \
+            g++-16
+
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+
+      - name: Build examples
+        run: |
+          cmake -B "$GITHUB_WORKSPACE/build" -S "$GITHUB_WORKSPACE" -G Ninja \
+            -DCMAKE_C_COMPILER=gcc-16 \
+            -DCMAKE_CXX_COMPILER=g++-16
+          cmake --build "$GITHUB_WORKSPACE/build" --target examples
