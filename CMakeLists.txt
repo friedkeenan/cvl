@@ -11,6 +11,7 @@ endif ()
 option(CVL_EXAMPLES "Generate the examples target." ${PROJECT_IS_TOP_LEVEL})
 
 add_library(cvl INTERFACE)
+add_library(cvl::cvl ALIAS cvl)
 
 target_compile_features(cvl INTERFACE
     cxx_std_26
@@ -51,7 +52,7 @@ if (${CVL_EXAMPLES})
             -Werror
         )
 
-        target_link_libraries(${target}_example cvl)
+        target_link_libraries(${target}_example PRIVATE cvl::cvl)
 
         add_dependencies(examples ${target}_example)
 
