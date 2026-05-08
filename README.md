@@ -37,6 +37,8 @@ If you however wish to use this in a sincere project, then by all means feel fre
 >
 > Make sure that your compiler supports this, and has the correct features enabled, if applicable.
 
+The library name `cvl` is short for **c**onste**v**a**l**, mainly because I like how `cvl::variable` reads sort of like "consteval variable".
+
 ## Features
 
 `cvl` provides two main sets of features: Things which model mutable consteval state, and things which operate on that mutable consteval state.
