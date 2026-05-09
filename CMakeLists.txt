@@ -113,4 +113,12 @@ if (${CVL_INSTALL})
 
     endif ()
 
+    install(
+        FILES LICENSE README.md
+
+        TYPE DOC
+
+        COMPONENT Documentation
+    )
+
 endif ()
