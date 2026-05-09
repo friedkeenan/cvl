@@ -20,14 +20,14 @@ target_compile_features(cvl INTERFACE
 
 target_compile_options(cvl INTERFACE -freflection)
 
-file(GLOB cvl_headers ${CMAKE_CURRENT_LIST_DIR}/include/cvl/*.hpp)
+file(GLOB CVL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/cvl/*.hpp)
 
 target_sources(cvl
     PUBLIC FILE_SET HEADERS
         BASE_DIRS include
         FILES
 
-        ${cvl_headers}
+        ${CVL_HEADERS}
 )
 
 if (${CVL_EXAMPLES})
@@ -100,5 +100,17 @@ if (${CVL_INSTALL})
 
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cvl
     )
+
+    if (${CMAKE_VERSION} VERSION_GREATER_EQUAL 4.3.0)
+
+        install(PACKAGE_INFO cvl
+            EXPORT cvl_targets
+
+            COMPONENT Development
+
+            LICENSE ISC
+        )
+
+    endif ()
 
 endif ()
