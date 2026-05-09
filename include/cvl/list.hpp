@@ -1,17 +1,12 @@
 #pragma once
 
 #include <cvl/common.hpp>
-#include <cvl/delayed_init.hpp>
-#include <cvl/tag.hpp>
+#include <cvl/map.hpp>
 #include <cvl/util.hpp>
 
 namespace cvl {
 
     namespace impl {
-
-        /* Each element in a 'cvl::list' is stored here, at a particular index. */
-        template<impl::tag, typename T, std::size_t Index>
-        constexpr inline cvl::delayed_init<T> list_index_value;
 
         template<typename R, typename T>
         concept container_compatible_range = (
@@ -24,8 +19,23 @@ namespace cvl {
 
     template<util::constant_reflectable T>
     requires (not std::is_reference_v<T>)
-    struct list : impl::tagged, std::ranges::view_interface<list<T>> {
+    struct list : std::ranges::view_interface<list<T>> {
         struct iterator {
+            /*
+                Our iterator uses an 'iota_view' iterator internally
+                to track which index the iterator corresponds to.
+
+                This gives us some goodies like a better
+                difference type, and simplifies some logic.
+
+                We're able to use the iterator after its
+                range has ended its lifetime, because
+                'iota_view' models 'borrowed_range'.
+            */
+            using _internal_iterator = std::ranges::iterator_t<
+                std::ranges::iota_view<std::size_t, std::unreachable_sentinel_t>
+            >;
+
             /* Our iterator can be random access because it just maps to an index. */
 
             using iterator_concept  = std::random_access_iterator_tag;
@@ -34,28 +44,16 @@ namespace cvl {
             using reference       = const T &;
             using value_type      = T;
             using pointer         = const T *;
-            using difference_type = std::ptrdiff_t;
+            using difference_type = std::iter_difference_t<_internal_iterator>;
 
-            /* The tag from the 'cvl::list'. */
-            impl::tag _tag;
+            /* The map for the 'cvl::list'. */
+            cvl::map<std::size_t, T> _map;
 
-            /* The particular index that the iterator corresponds to. */
-            std::ptrdiff_t  _index;
-
-            consteval auto _index_value(this const iterator self) -> cvl::delayed_init<T> {
-                return extract<cvl::delayed_init<T>>(
-                    substitute(^^impl::list_index_value, {
-                        std::meta::reflect_constant(self._tag),
-                        ^^T,
-                        std::meta::reflect_constant(
-                            static_cast<std::size_t>(self._index)
-                        )
-                    })
-                );
-            }
+            /* The iterator corresponding to the current index. */
+            _internal_iterator _current;
 
             consteval auto operator *(this const iterator self) -> reference {
-                const auto value = self._index_value();
+                const auto value = self._map.try_at(*self._current);
 
                 if (not value.has_value()) {
                     CVL_ERROR("Cannot access element of 'cvl::list' before it has been inserted");
@@ -69,7 +67,7 @@ namespace cvl {
             }
 
             consteval auto operator ++(this iterator &self) -> iterator & {
-                ++self._index;
+                ++self._current;
 
                 return self;
             }
@@ -83,7 +81,7 @@ namespace cvl {
             }
 
             consteval auto operator --(this iterator &self) -> iterator & {
-                --self._index;
+                --self._current;
 
                 return self;
             }
@@ -99,30 +97,36 @@ namespace cvl {
             friend consteval auto operator ==(const iterator lhs, std::default_sentinel_t) -> bool {
                 /* We've reached the end if the value for our index has not been initialized. */
 
-                return not lhs._index_value().has_value();
+                return not lhs._map.try_at(*lhs._current).has_value();
             }
 
             /*
                 We compare both our members for equality, since
                 we need to compare against iterators from any range.
             */
-            consteval auto operator ==(const iterator &) const -> bool = default;
+            friend consteval auto operator ==(const iterator lhs, const iterator rhs) -> bool {
+                if (lhs._map._tag != rhs._map._tag) {
+                    return false;
+                }
+
+                return lhs._current == rhs._current;
+            }
 
             friend consteval auto operator <=>(const iterator lhs, const iterator rhs) -> auto {
                 /*
-                    We compare only our indices here, since
+                    We compare only our iterators here, since
                     we only need to worry about relational
                     comparisons for iterators of the same range.
                 */
-                return (lhs._index <=> rhs._index);
+                return (lhs._current <=> rhs._current);
             }
 
             friend consteval auto operator -(const iterator lhs, const iterator rhs) -> difference_type {
-                return lhs._index - rhs._index;
+                return lhs._current - rhs._current;
             }
 
             friend consteval auto operator +=(iterator &lhs, const difference_type rhs) -> iterator & {
-                lhs._index += rhs;
+                lhs._current += rhs;
 
                 return lhs;
             }
@@ -138,7 +142,7 @@ namespace cvl {
             }
 
             friend consteval auto operator -=(iterator &lhs, const difference_type rhs) -> iterator & {
-                lhs._index -= rhs;
+                lhs._current -= rhs;
 
                 return lhs;
             }
@@ -163,6 +167,12 @@ namespace cvl {
         using const_iterator  = iterator;
         using difference_type = std::ptrdiff_t;
 
+        /*
+            A 'cvl::list' is a wrapper over a 'cvl::map'
+            with each key being an index into the list.
+        */
+        cvl::map<std::size_t, T> _map;
+
         consteval list() = default;
 
         template<impl::container_compatible_range<T> R>
@@ -177,7 +187,7 @@ namespace cvl {
         consteval explicit(false) list(const std::initializer_list<T> rng) : list(std::from_range, rng) {}
 
         consteval auto begin(this const list self) -> iterator {
-            return iterator{self._tag, 0};
+            return iterator{self._map, std::views::iota(0uz, std::unreachable_sentinel).begin()};
         }
 
         consteval auto end(this list) -> std::default_sentinel_t {
@@ -192,24 +202,13 @@ namespace cvl {
             return std::default_sentinel;
         }
 
-        consteval auto _index_value(this const list self, const std::size_t index) -> cvl::delayed_init<T> {
-            return extract<cvl::delayed_init<T>>(
-                self._substitute_tag(^^impl::list_index_value, {
-                    ^^T,
-                    std::meta::reflect_constant(index)
-                })
-            );
-        }
-
         consteval auto _next_index(this const list self) -> std::size_t {
             /* We loop until we find an index value which has not been initialized. */
 
             std::size_t index = 0;
 
             while (true) {
-                const auto index_value = self._index_value(index);
-
-                if (not index_value.has_value()) {
+                if (not self._map.contains(index)) {
                     return index;
                 }
 
@@ -220,7 +219,7 @@ namespace cvl {
         consteval auto push_back(this const list self, const T &elem) -> void {
             const auto next_index = self._next_index();
 
-            self._index_value(next_index) = elem;
+            self._map.insert(next_index, elem);
         }
 
         consteval auto try_back(this const list self) -> std::optional<const T &> {
@@ -232,11 +231,11 @@ namespace cvl {
 
             --index;
 
-            return *self._index_value(index);
+            return self._map[index];
         }
 
         consteval auto try_at(this const list self, const std::size_t index) -> std::optional<const T &> {
-            return self._index_value(index).optional();
+            return self._map.try_at(index);
         }
 
         template<impl::container_compatible_range<T> R>
@@ -245,7 +244,7 @@ namespace cvl {
 
             /* NOTE: 'elem' will have its lifetime extended if initialized by a temporary. */
             for (const T &elem : std::forward<R>(rng)) {
-                self._index_value(index) = elem;
+                self._map.insert(index, elem);
 
                 ++index;
             }
@@ -255,11 +254,11 @@ namespace cvl {
         consteval auto empty(this const list self) -> bool {
             /* We are empty if the 0-th index has no value. */
 
-            return not self._index_value(0).has_value();
+            return not self._map.contains(0);
         }
 
         friend consteval auto operator ==(const list lhs, const list rhs) -> bool {
-            if (lhs._tag == rhs._tag) {
+            if (lhs._map._tag == rhs._map._tag) {
                 return true;
             }
 

@@ -55,6 +55,10 @@ The following entities within `cvl` model mutable state:
     - A `cvl::list` models a mutable list of values. It can only grow in size, and it can have an arbitrary number of elements.
     - See its example [here](examples/list.cpp).
 
+- `cvl::map`
+    - A `cvl::map` models a map-like interface. It can insert and look up a value for a given key in constant time.
+    - See its example [here](examples/map.cpp)
+
 - `cvl::delayed_init`
     - A `cvl::delayed_init` models a value whose initialization can be deferred to some point after its declaration.
     - See its example [here](examples/delayed_init.cpp).
