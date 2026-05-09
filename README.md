@@ -57,7 +57,7 @@ The following entities within `cvl` model mutable state:
 
 - `cvl::map`
     - A `cvl::map` models a map-like interface. It can insert and look up a value for a given key in constant time.
-    - See its example [here](examples/map.cpp)
+    - See its example [here](examples/map.cpp).
 
 - `cvl::delayed_init`
     - A `cvl::delayed_init` models a value whose initialization can be deferred to some point after its declaration.
