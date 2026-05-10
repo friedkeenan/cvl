@@ -9,7 +9,7 @@
 
 /*
     A 'cvl::const_param' allows us to
-    life a function parameter into
+    lift a function parameter into
     something which we can use as a
     template parameter.
 
