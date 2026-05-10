@@ -75,6 +75,16 @@ namespace cvl {
             return self;
         }
 
+        consteval auto try_value(this const delayed_init self) -> std::optional<const T &> {
+            if (not self.has_value()) {
+                return std::nullopt;
+            }
+
+            return extract<const T &>(
+                self._tag.substitute(^^impl::delayed_init_value)
+            );
+        }
+
         consteval auto operator *(this const delayed_init self) -> const T & {
             if (not self.has_value()) {
                 CVL_ERROR("Cannot use value of 'cvl::delayed_init' before it has been initialized");
@@ -87,14 +97,6 @@ namespace cvl {
 
         consteval auto operator ->(this const delayed_init self) -> const T * {
             return std::addressof(*self);
-        }
-
-        consteval auto optional(this const delayed_init self) -> std::optional<const T &> {
-            if (not self.has_value()) {
-                return std::nullopt;
-            }
-
-            return *self;
         }
     };
 

@@ -49,7 +49,7 @@ namespace cvl {
         }
 
         consteval auto try_at(this const map self, const Key &key) -> std::optional<const Value &> {
-            return self._value_holder(key).optional();
+            return self._value_holder(key).try_value();
         }
 
         consteval auto operator [](this const map self, const Key &key) -> const Value & {

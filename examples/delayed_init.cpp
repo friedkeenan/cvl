@@ -26,6 +26,9 @@ int main() {
         // int_value = 43;
     }
 
-    /* A 'cvl::delayed_init' can be mapped to a 'std::optional'. */
-    static_assert(int_value.optional().value_or(-1) == 42);
+    /*
+        We can access the value of a 'cvl::delayed_init' only if
+        it has had its value set by using the 'try_value' method.
+    */
+    static_assert(int_value.try_value().value_or(-1) == 42);
 }
