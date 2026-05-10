@@ -1,24 +1,25 @@
 #pragma once
 
 #include <cvl/common.hpp>
-#include <cvl/tag.hpp>
 #include <cvl/util.hpp>
 
 namespace cvl {
 
     namespace impl {
 
-        template<impl::tag, auto Key, typename Value>
+        template<util::tag, auto Key, typename Value>
         constexpr inline cvl::delayed_init<Value> map_value_holder;
 
     }
 
     template<util::constant_reflectable Key, util::constant_reflectable Value>
     requires (not std::is_reference_v<Key> and not std::is_reference_v<Value>)
-    struct map : impl::tagged {
+    struct map {
+        util::tag _tag;
+
         consteval auto _value_holder(this const map self, const Key &key) -> cvl::delayed_init<Value> {
             return extract<cvl::delayed_init<Value>>(
-                self._substitute_tag(^^impl::map_value_holder, {
+                self._tag.substitute(^^impl::map_value_holder, {
                     std::meta::reflect_constant(key),
                     ^^Value
                 })

@@ -1,14 +1,13 @@
 #pragma once
 
 #include <cvl/common.hpp>
-#include <cvl/tag.hpp>
 #include <cvl/util.hpp>
 
 namespace cvl {
 
     namespace impl {
 
-        template<impl::tag>
+        template<util::tag>
         struct once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -35,7 +34,7 @@ namespace cvl {
             )
         };
 
-        template<impl::tag Tag>
+        template<util::tag Tag>
         struct set_once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -46,15 +45,17 @@ namespace cvl {
         };
 
         /* A helper template for us to call the friend function. */
-        template<impl::tag Tag>
+        template<util::tag Tag>
         constexpr inline std::meta::info once_flag_tracker = cvl_track_once_flag_set(impl::once_flag<Tag>{});
 
     }
 
-    struct once_flag : impl::tagged {
+    struct once_flag {
+        util::tag _tag;
+
         consteval auto _tracker(this const once_flag self) -> std::meta::info {
             return extract<std::meta::info>(
-                self._substitute_tag(^^impl::once_flag_tracker)
+                self._tag.substitute(^^impl::once_flag_tracker)
             );
         }
 
@@ -72,7 +73,7 @@ namespace cvl {
                 return;
             }
 
-            const auto set_flag = self._substitute_tag(^^impl::set_once_flag);
+            const auto set_flag = self._tag.substitute(^^impl::set_once_flag);
 
             util::ensure_instantiation(set_flag);
         }

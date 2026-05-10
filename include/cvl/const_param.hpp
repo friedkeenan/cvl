@@ -46,7 +46,7 @@ namespace cvl {
 
     /*
         NOTE: We seemingly can't use the
-        'cvl::impl::tagged' trick to uniquely
+        'cvl::util::tag' trick to uniquely
         tag a template parameter, so we fall
         back to using a lambda type as our tag.
 

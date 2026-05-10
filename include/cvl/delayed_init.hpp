@@ -2,7 +2,6 @@
 
 #include <cvl/common.hpp>
 #include <cvl/once_flag.hpp>
-#include <cvl/tag.hpp>
 #include <cvl/util.hpp>
 
 namespace cvl {
@@ -10,10 +9,10 @@ namespace cvl {
     namespace impl {
 
         /* Tracks whether initialization has happened. */
-        template<impl::tag>
+        template<util::tag>
         constexpr inline cvl::once_flag delayed_init_flag;
 
-        template<impl::tag>
+        template<util::tag>
         struct delayed_init {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -23,7 +22,7 @@ namespace cvl {
             )
         };
 
-        template<impl::tag Tag, auto Value>
+        template<util::tag Tag, auto Value>
         struct set_delayed_init_value {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -41,16 +40,18 @@ namespace cvl {
         };
 
         /* Helper template to get the value for the 'delayed_init' tag. */
-        template<impl::tag Tag>
+        template<util::tag Tag>
         constexpr inline auto delayed_init_value = cvl_delayed_init_value(impl::delayed_init<Tag>{});
 
     }
 
     template<util::constant_reflectable T>
-    struct delayed_init : impl::tagged {
+    struct delayed_init {
+        util::tag _tag;
+
         consteval auto has_value(this const delayed_init self) -> bool {
             const auto flag = extract<cvl::once_flag>(
-                self._substitute_tag(^^impl::delayed_init_flag)
+                self._tag.substitute(^^impl::delayed_init_flag)
             );
 
             return flag.get();
@@ -63,7 +64,7 @@ namespace cvl {
                 CVL_ERROR("Cannot set value of 'cvl::delayed_init' which has already been initialized");
             }
 
-            const auto set_value = self._substitute_tag(^^impl::set_delayed_init_value, {
+            const auto set_value = self._tag.substitute(^^impl::set_delayed_init_value, {
                 std::meta::reflect_constant(
                     static_cast<T>(std::forward<Other>(value))
                 )
@@ -80,7 +81,7 @@ namespace cvl {
             }
 
             return extract<const T &>(
-                self._substitute_tag(^^impl::delayed_init_value)
+                self._tag.substitute(^^impl::delayed_init_value)
             );
         }
 

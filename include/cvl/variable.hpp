@@ -2,7 +2,6 @@
 
 #include <cvl/common.hpp>
 #include <cvl/list.hpp>
-#include <cvl/tag.hpp>
 #include <cvl/util.hpp>
 
 namespace cvl {
