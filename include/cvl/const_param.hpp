@@ -15,7 +15,7 @@ namespace cvl {
             consteval const_param() = default;
 
             template<std::convertible_to<T> Other>
-            requires (not cvl::util::qualified_version_of<Other, const_param>)
+            requires (not cvl::util::unqualified_same_as<Other, const_param>)
             consteval explicit(false) const_param(Other &&other) {
                 /*
                     The compiler may call our constructor multiple times.

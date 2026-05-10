@@ -237,7 +237,7 @@ namespace cvl::util {
     );
 
     template<typename T, typename Other>
-    concept qualified_version_of = std::same_as<std::remove_cvref_t<T>, Other>;
+    concept unqualified_same_as = std::same_as<std::remove_cvref_t<T>, std::remove_cvref_t<Other>>;
 
 }
 
@@ -369,7 +369,7 @@ namespace cvl {
         }
 
         template<std::convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, delayed_init>)
+        requires (not util::unqualified_same_as<Other, delayed_init>)
         consteval auto operator =(this const delayed_init &self, Other &&value) -> const delayed_init & {
             if (self.has_value()) {
                 CVL_ERROR("Cannot set value of 'cvl::delayed_init' which has already been initialized");
@@ -422,7 +422,7 @@ namespace cvl {
             consteval const_param() = default;
 
             template<std::convertible_to<T> Other>
-            requires (not cvl::util::qualified_version_of<Other, const_param>)
+            requires (not cvl::util::unqualified_same_as<Other, const_param>)
             consteval explicit(false) const_param(Other &&other) {
                 /*
                     The compiler may call our constructor multiple times.
@@ -796,7 +796,7 @@ namespace cvl {
         }
 
         template<impl::container_compatible_range<T> R>
-        requires (not util::qualified_version_of<R, list>)
+        requires (not util::unqualified_same_as<R, list>)
         consteval explicit list(R &&rng) : list(std::from_range, std::forward<R>(rng)) {}
 
         consteval explicit(false) list(const std::initializer_list<T> rng) : list(std::from_range, rng) {}
@@ -921,13 +921,13 @@ namespace cvl {
         cvl::list<T> _states;
 
         template<std::convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, variable>)
+        requires (not util::unqualified_same_as<Other, variable>)
         consteval explicit(false) variable(Other &&other) {
             this->states().push_back(std::forward<Other>(other));
         }
 
         template<impl::only_explicitly_convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, variable>)
+        requires (not util::unqualified_same_as<Other, variable>)
         consteval explicit variable(Other &&other) {
             this->states().push_back(
                 static_cast<T>(std::forward<Other>(other))
@@ -943,7 +943,7 @@ namespace cvl {
         }
 
         template<std::convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, variable>)
+        requires (not util::unqualified_same_as<Other, variable>)
         consteval auto operator =(this const variable &self, Other &&other) -> const variable & {
             self.states().push_back(std::forward<Other>(other));
 

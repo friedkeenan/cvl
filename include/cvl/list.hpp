@@ -181,7 +181,7 @@ namespace cvl {
         }
 
         template<impl::container_compatible_range<T> R>
-        requires (not util::qualified_version_of<R, list>)
+        requires (not util::unqualified_same_as<R, list>)
         consteval explicit list(R &&rng) : list(std::from_range, std::forward<R>(rng)) {}
 
         consteval explicit(false) list(const std::initializer_list<T> rng) : list(std::from_range, rng) {}

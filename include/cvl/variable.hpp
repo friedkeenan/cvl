@@ -27,13 +27,13 @@ namespace cvl {
         cvl::list<T> _states;
 
         template<std::convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, variable>)
+        requires (not util::unqualified_same_as<Other, variable>)
         consteval explicit(false) variable(Other &&other) {
             this->states().push_back(std::forward<Other>(other));
         }
 
         template<impl::only_explicitly_convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, variable>)
+        requires (not util::unqualified_same_as<Other, variable>)
         consteval explicit variable(Other &&other) {
             this->states().push_back(
                 static_cast<T>(std::forward<Other>(other))
@@ -49,7 +49,7 @@ namespace cvl {
         }
 
         template<std::convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, variable>)
+        requires (not util::unqualified_same_as<Other, variable>)
         consteval auto operator =(this const variable &self, Other &&other) -> const variable & {
             self.states().push_back(std::forward<Other>(other));
 

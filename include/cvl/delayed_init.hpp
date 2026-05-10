@@ -57,7 +57,7 @@ namespace cvl {
         }
 
         template<std::convertible_to<T> Other>
-        requires (not util::qualified_version_of<Other, delayed_init>)
+        requires (not util::unqualified_same_as<Other, delayed_init>)
         consteval auto operator =(this const delayed_init &self, Other &&value) -> const delayed_init & {
             if (self.has_value()) {
                 CVL_ERROR("Cannot set value of 'cvl::delayed_init' which has already been initialized");
