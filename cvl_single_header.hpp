@@ -685,7 +685,7 @@ namespace cvl {
             }
 
             friend consteval auto operator ==(const iterator lhs, std::default_sentinel_t) -> bool {
-                /* We've reached the end if the value for our index has not been initialized. */
+                /* We've reached the end if there is no value for our current index. */
 
                 return not lhs._map.try_at(*lhs._current).has_value();
             }
@@ -793,7 +793,7 @@ namespace cvl {
         }
 
         consteval auto _next_index(this const list self) -> std::size_t {
-            /* We loop until we find an index value which has not been initialized. */
+            /* We loop until we find an index value which is not in our map. */
 
             std::size_t index = 0;
 
