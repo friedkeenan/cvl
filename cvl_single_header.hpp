@@ -495,7 +495,7 @@ namespace cvl {
                     std::meta::reflect_constant(controller)
                 });
 
-                cvl::util::ensure_instantiation(call_operator);
+                util::ensure_instantiation(call_operator);
 
                 args.push_back(std::meta::reflect_constant(call_operator));
 
