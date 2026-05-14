@@ -78,6 +78,23 @@ The following entities within `cvl` operate on mutable state:
     - A `cvl::const_param` allows us to lift a value passed as a function parameter into something we can use as a template parameter.
     - See its example [here](examples/const_param.cpp).
 
+***
+
+`cvl` also provides a few utilities:
+
+- `cvl::util::tag`
+    - A `cvl::util::tag` is used to give an object its own unique family of template instantiations.
+    - See its example [here](examples/tag.cpp).
+
+- `cvl::util::constant_reflectable`
+    - `cvl::util::constant_reflectable` is a concept which is modeled by a type when it is suitable to be passed to `std::meta::reflect_constant`.
+
+- `cvl::util::ensure_instantiation`
+    - `cvl::util::ensure_instantion` is a function which ensures that a given template substitution is instantiated.
+
+- `cvl::util::unqualified_same_as`
+    - `cvl::util::unqualified_same_as` is a concept which is modeled by two types when they would be the same type with all qualifiers removed.
+
 ## Copying Mutable State
 
 Every entity in `cvl` which models mutable consteval state has view-like semantics. That means that if we take a copy of an object of those types, then the original object and the copied object will both refer to the same value, and updating one will also update the other. For instance:
