@@ -7,7 +7,7 @@ namespace cvl {
 
     namespace impl {
 
-        template<util::tag>
+        template<util::template_tag>
         struct once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -34,7 +34,7 @@ namespace cvl {
             )
         };
 
-        template<util::tag Tag>
+        template<util::template_tag Tag>
         struct set_once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -45,13 +45,13 @@ namespace cvl {
         };
 
         /* A helper template for us to call the friend function. */
-        template<util::tag Tag>
+        template<util::template_tag Tag>
         constexpr inline std::meta::info once_flag_tracker = cvl_track_once_flag_set(impl::once_flag<Tag>{});
 
     }
 
     struct once_flag {
-        util::tag _tag;
+        util::template_tag _tag;
 
         consteval auto _tracker(this const once_flag self) -> std::meta::info {
             return extract<std::meta::info>(

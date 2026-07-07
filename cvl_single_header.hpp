@@ -105,16 +105,17 @@ namespace cvl::util {
         be used as a template parameter to keep types
         distinct from each other.
 
-        Tagged entities can include a field of type 'util::tag'
-        and conveniently and automatically get a unique tag,
-        which can then be passed off to various templates to
+        Tagged entities can include a field of type
+        'util::template_tag' and conveniently and
+        automatically get a unique tag, which can
+        then be passed off to various templates to
         get at the "backend" of a given stateful object.
     */
-    struct tag {
+    struct template_tag {
         std::meta::info _underlying;
 
         /*
-            A 'util::tag' uses its own address as its underlying tag.
+            A 'util::template_tag' uses its own address as its underlying tag.
 
             NOTE: We eagerly turn the address
             into a 'std::meta::info' so that
@@ -122,7 +123,7 @@ namespace cvl::util {
             if the address is not static, instead
             of waiting until it's used as a tag.
         */
-        consteval tag() {
+        consteval template_tag() {
             /*
                 I believe that whether an address is static
                 is only able to be checked by catching the
@@ -137,7 +138,10 @@ namespace cvl::util {
                 this->_underlying = std::meta::reflect_constant(this);
             } catch (const std::meta::exception &) {
                 /* Rethrow a more helpful exception. */
-                CVL_ERROR("A tagged object must have a static address, but this object has a non-static address");
+                CVL_ERROR(
+                    "A static address is required for this object,"
+                    " but this object has a non-static address"
+                );
             }
 
             #else
@@ -147,13 +151,13 @@ namespace cvl::util {
             #endif
         }
 
-        /* A helper function to pass off the tag to a template. */
-        consteval auto substitute(this const tag self, std::meta::info templ) -> std::meta::info {
+        /* A helper function to pass the tag off to a template. */
+        consteval auto substitute(this const template_tag self, std::meta::info templ) -> std::meta::info {
             return std::meta::substitute(templ, {std::meta::reflect_constant(self)});
         }
 
         template<std::meta::reflection_range R = std::initializer_list<std::meta::info>>
-        consteval auto substitute(this const tag self, std::meta::info templ, R &&args) -> std::meta::info {
+        consteval auto substitute(this const template_tag self, std::meta::info templ, R &&args) -> std::meta::info {
             auto real_args = std::vector{std::meta::reflect_constant(self)};
 
             real_args.append_range(std::forward<R>(args));
@@ -161,7 +165,7 @@ namespace cvl::util {
             return std::meta::substitute(templ, real_args);
         }
 
-        consteval auto operator ==(const tag &) const -> bool = default;
+        consteval auto operator ==(const template_tag &) const -> bool = default;
     };
 
     namespace impl {
@@ -212,7 +216,7 @@ namespace cvl {
 
     namespace impl {
 
-        template<util::tag>
+        template<util::template_tag>
         struct once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -239,7 +243,7 @@ namespace cvl {
             )
         };
 
-        template<util::tag Tag>
+        template<util::template_tag Tag>
         struct set_once_flag {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -250,13 +254,13 @@ namespace cvl {
         };
 
         /* A helper template for us to call the friend function. */
-        template<util::tag Tag>
+        template<util::template_tag Tag>
         constexpr inline std::meta::info once_flag_tracker = cvl_track_once_flag_set(impl::once_flag<Tag>{});
 
     }
 
     struct once_flag {
-        util::tag _tag;
+        util::template_tag _tag;
 
         consteval auto _tracker(this const once_flag self) -> std::meta::info {
             return extract<std::meta::info>(
@@ -291,10 +295,10 @@ namespace cvl {
     namespace impl {
 
         /* Tracks whether initialization has happened. */
-        template<util::tag>
+        template<util::template_tag>
         constexpr inline cvl::once_flag delayed_init_flag;
 
-        template<util::tag>
+        template<util::template_tag>
         struct delayed_init {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -304,7 +308,7 @@ namespace cvl {
             )
         };
 
-        template<util::tag Tag, auto Value>
+        template<util::template_tag Tag, auto Value>
         struct set_delayed_init_value {
             CVL_DISABLE_FRIEND_WARNING(
 
@@ -322,14 +326,14 @@ namespace cvl {
         };
 
         /* Helper template to get the value for the 'delayed_init' tag. */
-        template<util::tag Tag>
+        template<util::template_tag Tag>
         constexpr inline auto delayed_init_value = cvl_delayed_init_value(impl::delayed_init<Tag>{});
 
     }
 
     template<util::constant_reflectable T>
     struct delayed_init {
-        util::tag _tag;
+        util::template_tag _tag;
 
         consteval auto has_value(this const delayed_init self) -> bool {
             const auto flag = extract<cvl::once_flag>(
@@ -426,9 +430,10 @@ namespace cvl {
 
     /*
         NOTE: We seemingly can't use the
-        'cvl::util::tag' trick to uniquely
-        tag a template parameter, so we fall
-        back to using a lambda type as our tag.
+        'cvl::util::template_tag' trick to
+        uniquely tag a template parameter,
+        so we fall back to using a lambda
+        type as our tag.
 
         Having a default template parameter which
         doesn't have a consistent value may be
@@ -536,7 +541,7 @@ namespace cvl {
 
     namespace impl {
 
-        template<util::tag, auto Key, typename Value>
+        template<util::template_tag, auto Key, typename Value>
         constexpr inline cvl::delayed_init<Value> map_value_holder;
 
     }
@@ -544,7 +549,7 @@ namespace cvl {
     template<util::constant_reflectable Key, util::constant_reflectable Value>
     requires (not std::is_reference_v<Key> and not std::is_reference_v<Value>)
     struct map {
-        util::tag _tag;
+        util::template_tag _tag;
 
         consteval auto _value_holder(this const map self, const Key &key) -> cvl::delayed_init<Value> {
             return extract<cvl::delayed_init<Value>>(

@@ -15,16 +15,17 @@ namespace cvl::util {
         be used as a template parameter to keep types
         distinct from each other.
 
-        Tagged entities can include a field of type 'util::tag'
-        and conveniently and automatically get a unique tag,
-        which can then be passed off to various templates to
+        Tagged entities can include a field of type
+        'util::template_tag' and conveniently and
+        automatically get a unique tag, which can
+        then be passed off to various templates to
         get at the "backend" of a given stateful object.
     */
-    struct tag {
+    struct template_tag {
         std::meta::info _underlying;
 
         /*
-            A 'util::tag' uses its own address as its underlying tag.
+            A 'util::template_tag' uses its own address as its underlying tag.
 
             NOTE: We eagerly turn the address
             into a 'std::meta::info' so that
@@ -32,7 +33,7 @@ namespace cvl::util {
             if the address is not static, instead
             of waiting until it's used as a tag.
         */
-        consteval tag() {
+        consteval template_tag() {
             /*
                 I believe that whether an address is static
                 is only able to be checked by catching the
@@ -47,7 +48,10 @@ namespace cvl::util {
                 this->_underlying = std::meta::reflect_constant(this);
             } catch (const std::meta::exception &) {
                 /* Rethrow a more helpful exception. */
-                CVL_ERROR("A tagged object must have a static address, but this object has a non-static address");
+                CVL_ERROR(
+                    "A static address is required for this object,"
+                    " but this object has a non-static address"
+                );
             }
 
             #else
@@ -57,13 +61,13 @@ namespace cvl::util {
             #endif
         }
 
-        /* A helper function to pass off the tag to a template. */
-        consteval auto substitute(this const tag self, std::meta::info templ) -> std::meta::info {
+        /* A helper function to pass the tag off to a template. */
+        consteval auto substitute(this const template_tag self, std::meta::info templ) -> std::meta::info {
             return std::meta::substitute(templ, {std::meta::reflect_constant(self)});
         }
 
         template<std::meta::reflection_range R = std::initializer_list<std::meta::info>>
-        consteval auto substitute(this const tag self, std::meta::info templ, R &&args) -> std::meta::info {
+        consteval auto substitute(this const template_tag self, std::meta::info templ, R &&args) -> std::meta::info {
             auto real_args = std::vector{std::meta::reflect_constant(self)};
 
             real_args.append_range(std::forward<R>(args));
@@ -71,7 +75,7 @@ namespace cvl::util {
             return std::meta::substitute(templ, real_args);
         }
 
-        consteval auto operator ==(const tag &) const -> bool = default;
+        consteval auto operator ==(const template_tag &) const -> bool = default;
     };
 
     namespace impl {

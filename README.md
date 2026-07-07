@@ -82,9 +82,9 @@ The following entities within `cvl` operate on mutable state:
 
 `cvl` also provides a few utilities:
 
-- `cvl::util::tag`
-    - A `cvl::util::tag` is used to give an object its own unique family of template instantiations.
-    - See its example [here](examples/tag.cpp).
+- `cvl::util::template_tag`
+    - A `cvl::util::template_tag` is used to give an object its own unique family of template instantiations.
+    - See its example [here](examples/template_tag.cpp).
 
 - `cvl::util::constant_reflectable`
     - `cvl::util::constant_reflectable` is a concept which is modeled by a type when it is suitable to be passed to `std::meta::reflect_constant`.

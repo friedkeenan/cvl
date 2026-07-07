@@ -46,9 +46,10 @@ namespace cvl {
 
     /*
         NOTE: We seemingly can't use the
-        'cvl::util::tag' trick to uniquely
-        tag a template parameter, so we fall
-        back to using a lambda type as our tag.
+        'cvl::util::template_tag' trick to
+        uniquely tag a template parameter,
+        so we fall back to using a lambda
+        type as our tag.
 
         Having a default template parameter which
         doesn't have a consistent value may be

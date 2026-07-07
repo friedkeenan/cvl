@@ -4,24 +4,22 @@
 #include <cvl/cvl.hpp>
 
 /*
-    A 'cvl::util::tag' is used when a given
-    instance of some object needs its own
-    unique family of template instantiations.
+    A 'cvl::util::template_tag' is used when
+    a given instance of some object needs its
+    own unique family of template instantiations.
 
     That sort of usecase can often arise when
     building your own features on top of the
     the features that 'cvl' provides.
 
-    In this example, we'll look at one such
-    usecase: Building a 'counter' class on
-    top of 'cvl::once_flag'.
+    In this example, we'll look at one such usecase:
+    Building a 'counter' class on top of 'cvl::once_flag'.
 */
 
 /*
-    A 'cvl::util::tag' is dispatched to
-    a given template, which will result
-    in a unique template instantiation
-    for each tag.
+    A 'cvl::util::template_tag' is dispatched
+    to a given template, which will result in
+    a unique template instantiation for each tag.
 
     Here, we're dispatching our tags to
     a variable template, along with a
@@ -41,15 +39,14 @@
     and will be unset if our counter
     is at or has not yet reached 'N'.
 */
-template<cvl::util::tag, std::size_t N>
+template<cvl::util::template_tag, std::size_t N>
 constexpr inline cvl::once_flag nth_counter_flag;
 
 struct counter {
     /*
-        The way that we initially
-        retrieve a 'cvl::util::tag'
-        is by including it as a
-        subobject of our class.
+        The way that we initially retrieve
+        a 'cvl::util::template_tag' is by
+        including it as a subobject of our class.
 
         That will then cause each
         originating-declaration
@@ -67,13 +64,14 @@ struct counter {
         affect the original declaration,
         as well as any other copies.
     */
-    cvl::util::tag tag;
+    cvl::util::template_tag tag;
 
     /* We'll define a helper method to get the n-th flag. */
     consteval auto nth_flag(std::size_t n) const -> cvl::once_flag {
         /*
-            'cvl::util::tag' provides a 'substitute'
-            method in order to dispatch it to a template.
+            'cvl::util::template_tag' provides
+            a 'substitute' method in order to
+            dispatch the tag to a given template.
 
             It will place the tag as the first
             template argument, with the other
@@ -160,10 +158,10 @@ int main() {
         will result in an error.
 
         This is because every
-        originating-delcaration
+        originating-declaration
         of an object containing
-        a 'cvl::util::tag' must
-        have a static storage
+        a 'cvl::util::template_tag'
+        must have a static storage
         duration. This declaration
         is actually not static,
         however, and actually

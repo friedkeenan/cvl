@@ -7,7 +7,7 @@ namespace cvl {
 
     namespace impl {
 
-        template<util::tag, auto Key, typename Value>
+        template<util::template_tag, auto Key, typename Value>
         constexpr inline cvl::delayed_init<Value> map_value_holder;
 
     }
@@ -15,7 +15,7 @@ namespace cvl {
     template<util::constant_reflectable Key, util::constant_reflectable Value>
     requires (not std::is_reference_v<Key> and not std::is_reference_v<Value>)
     struct map {
-        util::tag _tag;
+        util::template_tag _tag;
 
         consteval auto _value_holder(this const map self, const Key &key) -> cvl::delayed_init<Value> {
             return extract<cvl::delayed_init<Value>>(
