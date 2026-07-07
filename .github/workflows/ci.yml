@@ -66,4 +66,4 @@ jobs:
         run: cmake -B "$GITHUB_WORKSPACE/build" -S "$GITHUB_WORKSPACE" -G Ninja
 
       - name: Build examples
-      - run: cmake --build "$GITHUB_WORKSPACE/build" --target cvl_examples
+        run: cmake --build "$GITHUB_WORKSPACE/build" --target cvl_examples
