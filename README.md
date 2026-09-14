@@ -90,7 +90,7 @@ The following entities within `cvl` operate on mutable state:
     - `cvl::util::constant_reflectable` is a concept which is modeled by a type when it is suitable to be passed to `std::meta::reflect_constant`.
 
 - `cvl::util::ensure_instantiation`
-    - `cvl::util::ensure_instantion` is a function which ensures that a given template substitution is instantiated.
+    - `cvl::util::ensure_instantiation` is a function which ensures that a given template substitution is instantiated.
 
 - `cvl::util::unqualified_same_as`
     - `cvl::util::unqualified_same_as` is a concept which is modeled by two types when they would be the same type with all qualifiers removed.
