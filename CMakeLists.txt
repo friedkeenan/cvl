@@ -20,7 +20,26 @@ target_compile_features(cvl INTERFACE
 
 target_compile_options(cvl INTERFACE -freflection)
 
-file(GLOB CVL_HEADERS ${CMAKE_CURRENT_LIST_DIR}/include/cvl/*.hpp)
+set(CVL_HEADERS)
+
+foreach (header
+    common.hpp
+    const_param.hpp
+    cvl.hpp
+    defines.hpp
+    delayed_init.hpp
+    error.hpp
+    expand.hpp
+    includes.hpp
+    list.hpp
+    map.hpp
+    once_flag.hpp
+    undefines.hpp
+    util.hpp
+    variable.hpp
+)
+    list(APPEND CVL_HEADERS include/cvl/${header})
+endforeach ()
 
 target_sources(cvl
     PUBLIC FILE_SET HEADERS
