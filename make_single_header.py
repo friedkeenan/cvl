@@ -42,6 +42,9 @@ class IncludeExpander:
         if visited is None:
             visited = set()
 
+        if len(visited) <= 0:
+            output.write("#pragma once")
+
         input_path = Path(input_path).absolute()
 
         if input_path in visited:
